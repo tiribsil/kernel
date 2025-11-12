@@ -23,18 +23,9 @@ _start:
     //   modo supervisor!! Lembra? O kernel deve rodar no modo
     //   supervisor.
 
-    ldr sp, =stack_top // Stack pointer aponta pro rótulo stack_top (fim do arquivo).
+    ldr sp, =stack_top // Stack pointer aponta pro rótulo stack_top (definido pelo linker script).
 
     bl kmain // Pula para onde está o código binário da função kmain, que será linkada.
 
 hang:
     b hang // Loop infinito caso kmain retorne para não executar lixo de memória.
-
-// Sinaliza ao assembler que o que segue é uma seção de dados.
-.section .bss
-.align 4 // Faz o próximo endereço ser múltiplo de 4.
-
-stack_bottom:
-    .space 16384 // Reserva 16KB para a pilha.
-
-stack_top: // A pilha cresce pra baixo daqui até o stack_bottom
