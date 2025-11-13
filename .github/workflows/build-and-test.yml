@@ -39,4 +39,4 @@ jobs:
           # A saída da porta serial é redirecionada para o grep.
           # O grep procura pela string de sucesso. Se encontrar, o passo termina com sucesso.
           # Se não encontrar (ou se o QEMU travar), o passo falha.
-          timeout 30s qemu-system-arm -M virt -cpu cortex-a15 -nographic -kernel kernel.elf -serial stdio | grep "Bem-vindo ao UFSKernel!"
+          timeout 30s qemu-system-arm -M virt -cpu cortex-a15 -nographic -kernel kernel.elf | grep "Bem-vindo ao UFSKernel!"
