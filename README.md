@@ -13,7 +13,7 @@ Antes de começar, você precisa ter o ambiente de desenvolvimento configurado.
 - **Toolchain ARM:** `arm-none-eabi-gcc`
 - **Emulador QEMU:** `qemu-system-arm`
 
-As instruções detalhadas de instalação do ambiente podem ser encontradas na **[documentação oficial do projeto](https://github.com/UFSKernel/docs/releases/latest)**.
+As instruções detalhadas de preparação do ambiente podem ser encontradas na **[documentação](https://github.com/UFSKernel/docs/tree/main/setup)**.
 
 ## Como Contribuir
 
@@ -66,7 +66,7 @@ A contribuição para o kernel segue um fluxo de trabalho padrão baseado em For
 
 7.  **Abra um Pull Request**
     
-    Volte para a página do seu fork no GitHub. Um botão para "Compare & pull request" aparecerá. Clique nele, escreva uma descrição clara das suas mudanças e abra o Pull Request para a branch `main` do repositório `UFSKernel/kernel`.
+    Volte para a página do seu fork no GitHub. Um botão para "Compare & pull request" aparecerá. Clique nele, escreva uma breve descrição das suas mudanças e abra o Pull Request para a branch `main` do repositório `UFSKernel/kernel`. A explicação mais detalhada pertence à **[documentação oficial do projeto](https://github.com/UFSKernel/docs/)**.
 
 ## Automação e Testes (CI)
 
