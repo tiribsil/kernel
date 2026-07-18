@@ -2,9 +2,9 @@
 #include <syscall.h>
 #include <interrupts_handler.h>
 #include <timer.h>
-#include "types.h"
-#include "pmm.h"
-#include "VMM.h"
+#include <types.h>
+#include <pmm.h>
+#include <VMM.h>
 #include <process.h>
 #include <scheduler.h>
 
