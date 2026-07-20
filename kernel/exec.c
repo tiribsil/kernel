@@ -1,65 +1,25 @@
 #include <process.h>
 #include <serial.h>
 #include <timer.h>
-// programas em formato de funcoes para teste
 
-void programainicio(){
-    serial_puts("Processo rodando programa inicio\n");
+// Importa rótulo do linker script. Aqui é onde acaba o código do executável.
+extern char __code_data_end[];
 
-    int retorno = fork();
-
-    if(!retorno){
-        exec(&arq1);
-    }
-
-    retorno = fork();
-    
-    if(!retorno){
-        exec(&arq2);
-    }
-
-    
-    exit();
-}
-
-void programa1(){
-    while(1){
-    serial_puts("Processo rodando programa 1\n");
-    for(volatile int i = 0; i < 50000000; i++); 
-    }
-}
-
-void programa2(){
-    while(1){
-    serial_puts("Processo rodando programa 2\n");
-    for(volatile int i = 0; i < 50000000; i++); 
-    }
-}
-// """""pseudo-arquivos"""""
-struct arquivo arqinicio = {programainicio, 10000};
-struct arquivo arq1 = {programa1, 10000};
-struct arquivo arq2 = {programa2, 10000};
-
-
-void sys_exec(struct arquivo* arquivo) {
-    
+void sys_exec(void (*programa)(void)) {
     // copia as intrucoes das funcoes para a memoria do processo
     process p = current;
     
-    /* 
-    * essa gambiarra de pseudo arquivo necessita que todas as funcoes auxiliares sejam copiadas,
-    * ou seja copiamos a memoria desde o seu inicio para garantir que todas as funcoes estao sendo incluidas
-    */
+    // Aqui, a memória do processo vai ser todo o código entre o início
+    // da função "programa" e o fim do código do executável.
     char* inicio = (char*)0x40000000;
-    for(int i = 0; i < arquivo->size; i++){
-        p->mem[i] = inicio[i];
-    }
-    
-    p->msize = arquivo->size; // atualiza o tamanho da memoria
+    unsigned int tamanho_codigo = (unsigned int)__code_data_end - 0x40000000;
+    for(unsigned int i = 0; i < tamanho_codigo; i++) p->mem[i] = inicio[i];
+    p->msize = tamanho_codigo; // atualiza o tamanho da memoria
 
-    // & ~1 significa "zerar o bit menos significativo"
-    unsigned int entry_point = (unsigned int) p->mem + ((((unsigned int)arquivo->start) & ~1U) - 0x40000000);     
-    unsigned int usrstack_top = (unsigned int) (p->mem + PROCESS_SIZE); 
+    unsigned int offset = ((unsigned int)programa) - 0x40000000;
+    unsigned int entry_point = (unsigned int)p->mem + offset;
+
+    unsigned int usrstack_top = (unsigned int) (p->mem + PROCESS_SIZE);
 
     p->tf = (struct trapframe*)((unsigned)p->kstack + SIZE_16KB - sizeof(struct trapframe));
 
@@ -81,8 +41,8 @@ void sys_exec(struct arquivo* arquivo) {
     // atualiza os ponteiros de pilha e pc
     p->tf->pc_usr = entry_point;
     p->tf->sp_usr = usrstack_top;
-
     p->tf->lr_usr = 0;
+
     // coloca o resultado do exec para executar em modo usuario
     p->tf->cpsr_usr = 0x30;
 

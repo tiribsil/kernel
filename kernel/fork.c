@@ -1,7 +1,7 @@
 #include <process.h>
 #include <scheduler.h>
 #include <interrupts_handler.h>
-
+#include <syscall.h>
 
 // salvar o contexto do processo
 // chamar fork
@@ -77,9 +77,7 @@ int sys_fork(){
    return current->tf->r0;
 }
 
-
-
-void first_process(struct arquivo arquivo){
+void first_process(void (*programa)(void)){
 
     pid_t pid = create_pid(); // gera um pid 
 
@@ -102,6 +100,6 @@ void first_process(struct arquivo arquivo){
     current->tf = (struct trapframe*)((unsigned)current->kstack + SIZE_16KB - sizeof(struct trapframe));
     current->tf->sp_usr = usrstack_top;
 
-    exec(&arquivo); //executa o programa inicial
+    exec(programa); //executa o programa inicial
     irq_return();
 }
