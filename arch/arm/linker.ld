@@ -14,22 +14,27 @@ SECTIONS {
         KEEP(*(.text.startup))  /* o código de inicialização, */
         *(.text)                /* as seções de código, */
         *(.rodata)              /* as seções de constante. */
+        . = ALIGN(4);           /* alinha os bytes */
     }
 
-    
+
     /* As seções .data e .bss são Read / Write (RW). */
     /* Elas armazenam as variáveis globais. */
     .data : {
         *(.data) /* Variáveis inicializadas. */
+        . = ALIGN(4);
     }
 
     .bss : {
         *(.bss)  /* Variáveis não inicializadas. */
+        . = ALIGN(4);
     }
 
+    . = ALIGN(8);
     /* Pulamos ("alocamos") 16KB para a pilha usar. */
     stack_bottom = .; /* Rótulo para não estourarmos a pilha. */
-    . = . + 0x8000;
+    . = . + 0x4000;
+    . = ALIGN(8);
     stack_top = .; /* Aqui é o rótulo usado no startup.S. */
 
     end = .;

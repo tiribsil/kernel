@@ -1,0 +1,21 @@
+[
+  {
+    "file": "kernel/kstdio.c",
+    "arguments": [
+      "/usr/bin/arm-none-eabi-gcc",
+      "-ffreestanding",
+      "-Wall",
+      "-Wextra",
+      "-g",
+      "-Iinclude",
+      "-mcpu=cortex-a15",
+      "-mthumb",
+      "-c",
+      "kernel/kstdio.c",
+      "-o",
+      "build/kstdio.o"
+    ],
+    "directory": "/home/pedronsa/projects/ufskernel/kernel",
+    "output": "build/kstdio.o"
+  }
+]

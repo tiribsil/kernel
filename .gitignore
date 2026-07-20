@@ -8,3 +8,5 @@ build/
 # executável final
 *.elf
 *.img
+
+compile_commands.json
