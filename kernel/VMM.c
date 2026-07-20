@@ -1,6 +1,6 @@
-#include "VMM.h"
+#include <VMM.h>
 #include <stddef.h>
-#include "vboard.h"
+#include <vboard.h>
 
 // O diretório de páginas principal do próprio kernel
 // A arquitetura define 16kb então fazer a alocação estática é mais fácil
