@@ -14,8 +14,8 @@ typedef struct
 typedef struct process* process;
 
 enum State{
-    RUNNING, 
-    READY, 
+    RUNNING,
+    READY,
     BLOCKED,
     ZOMBIE
 };
@@ -131,15 +131,5 @@ struct process_block_list
   int files[32];
   int waiting_for_file_count;
 };
-
-// simulacao de arquivo com funcoes
-struct arquivo{
-  void (*start)(void);
-  int size;
-};
-
-
-
-
 
 #endif
