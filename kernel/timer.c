@@ -1,5 +1,5 @@
 #include <interrupts_handler.h>
-#include <serial.h>
+#include <kstdio.h>
 #include <timer.h>
 #include <vboard.h>
 #include <scheduler.h>
@@ -16,7 +16,7 @@ static inline uint32_t read_cntfrq(void) {
 
 // função que será chamada quando a interrupção for ativada
 static void timer_callback(void) {
-  serial_puts(">>> TICK DO TIMER <<<\n");
+  kputs(">>> TICK DO TIMER <<<\n");
 
   // recarrega o timer
   __asm__ volatile("mcr p15, 0, %0, c14, c2, 0" ::"r"(ticks_p_q));
@@ -38,9 +38,9 @@ void init_timer(void) {
 
   // Toda interrupção deve se registrar no despachante do GIC
   if (!register_interrupt_handler(TIMER_IRQ, timer_callback))
-    serial_puts("Registrando timer no GIC...\n");
+    kputs("Registrando timer no GIC...\n");
   else
-    serial_puts("Erro ao registrar timer no GIC!\n");
+    kputs("Erro ao registrar timer no GIC!\n");
 
   // ativando a interrupção apos registrar
   gic_enable_interrupt(TIMER_IRQ);
@@ -55,5 +55,5 @@ void disable_timer(void) {
 
   register_interrupt_handler(TIMER_IRQ, 0);
 
-  serial_puts("Timer desativado com sucesso!\n");
+  kputs("Timer desativado com sucesso!\n");
 }
