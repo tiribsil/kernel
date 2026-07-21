@@ -29,10 +29,7 @@ enum process_blocks {WAIT_SLEEP, WAIT_FILE};
 
 // ***constantes e variaveis globais
 
-#define MAX_PROCESS_COUNT 4
-
-#define SIZE_16KB (16 * 1024)
-#define PROCESS_SIZE (256 * 1024)
+#define MAX_PROCESS_COUNT 64
 
 #define KSTACK_SIZE 16384
 
@@ -91,19 +88,18 @@ struct trapframe{
 
 
 struct process{
-    char* mem; // começo da memória do processo
-    unsigned msize; // tamanho da memória do processo 
-
+    char* usr_stack;
     char* kstack; // ponteiro para o inicio da pilha no kernel para o processo
     struct trapframe *tf; // trapframe do processo (ponteiro para o topo da pilha no kernel)
 
     enum State state; // estado do processo
     enum Block_Reason blocked_by;
+
     // Informações para o Kernel
     pid_t pid;
     process parent;
     pid_list children_ids;
-  
+
     struct context context; // contexto do kernel
 
     unsigned priority;
