@@ -1,6 +1,6 @@
-#include "uart.h"
+#include <uart.h>
 
-#include "interrupts_handler.h"
+#include <interrupts_handler.h>
 
 #define UART0_BASE 0x09000000U
 

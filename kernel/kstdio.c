@@ -1,5 +1,5 @@
-#include "kstdio.h"
-#include "uart.h"
+#include <kstdio.h>
+#include <uart.h>
 
 void kstdio_init(void) { uart_init(); }
 

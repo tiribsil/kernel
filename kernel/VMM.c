@@ -1,6 +1,7 @@
 #include <VMM.h>
 #include <stddef.h>
 #include <vboard.h>
+#include <kstdio.h>
 
 // O diretório de páginas principal do próprio kernel
 // A arquitetura define 16kb então fazer a alocação estática é mais fácil
@@ -10,7 +11,7 @@ static page_directory_t kernel_directory_static __attribute__((aligned(16 * 1024
 void vmm_init(void) {
     page_directory_t *kernel_directory = &kernel_directory_static;
     if(kernel_directory == NULL) {
-        serial_puts("Falha ao alocar diretório de páginas para o kernel!\n");
+        kputs("Falha ao alocar diretório de páginas para o kernel!\n");
         while(1); 
     }
     for (int i = 0; i < NUM_FIRST_LEVEL_ENTRIES; i++) {
