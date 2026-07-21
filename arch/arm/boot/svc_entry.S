@@ -1,5 +1,5 @@
 .section .text
-.equ TRAPFRAME_OFFSET, 12
+.equ TRAPFRAME_OFFSET, 8
 .extern current
 .global svc_entry 
 .type svc_entry, %function

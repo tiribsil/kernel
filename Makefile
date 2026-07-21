@@ -13,7 +13,7 @@ TARGET = kernel.elf
 # -Wall: Habilita todos os warnings. -Wextra: Habilita mais warnings.
 # -g: Inclui símbolos de debug para o GDB.
 # -Iinclude: Adiciona o diretório 'include' aos caminhos de busca por headers.
-CFLAGS = -nostdlib -ffreestanding -Wall -Wextra -g -Iinclude
+CFLAGS = -nostdlib -ffreestanding -Wall -Wextra -g -Iinclude -O0
 
 ARCH_FLAGS = -mcpu=cortex-a15 -mthumb
 

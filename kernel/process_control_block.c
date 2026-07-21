@@ -1,6 +1,4 @@
 #include <scheduler.h>
-#include <serial.h>
-
 
 /*
  * Função temporária só para testes, o nosso escalonador deveria adicionar

@@ -16,12 +16,13 @@ SECTIONS {
         *(.rodata)              /* as seções de constante. */
     }
 
-    
     /* As seções .data e .bss são Read / Write (RW). */
     /* Elas armazenam as variáveis globais. */
     .data : {
         *(.data) /* Variáveis inicializadas. */
     }
+
+    __code_data_end = .;
 
     .bss : {
         *(.bss)  /* Variáveis não inicializadas. */

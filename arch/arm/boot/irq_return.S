@@ -1,5 +1,5 @@
 .section .text
-.equ TRAPFRAME_OFFSET, 12
+.equ TRAPFRAME_OFFSET, 8
 .global irq_return
 .type irq_return, %function
 
