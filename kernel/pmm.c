@@ -1,5 +1,6 @@
 // Gerencia o array de bits (Bitmap)
 #include <pmm.h>
+#include <types.h>
 #include <bitutils.h>
 
 extern uint8_t end[]; // Símbolo vindo do linker script, representa o final do kernel

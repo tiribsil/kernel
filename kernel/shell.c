@@ -1,5 +1,5 @@
-#include "shell.h"
-#include "kstdio.h"
+#include <shell.h>
+#include <kstdio.h>
 
 // Implementacao basica do strcomp
 int strcmp(const char *s1, const char *s2) {

@@ -1,7 +1,7 @@
 #ifndef INTERRUPTS_HANDLER_H
 #define INTERRUPTS_HANDLER_H
 
-#include "types.h"
+#include <types.h>
 
 // função do código assembly interrupts.S
 #define MAX_INTERRUPTS 1024

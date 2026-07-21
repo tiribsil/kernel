@@ -26,7 +26,7 @@ Syscall_Table:
 printf_handler:
     mov r0,r1
     push {lr}
-    bl serial_puts
+    bl kputs
     mov r0, #10
     pop {pc}
 
@@ -58,7 +58,7 @@ exit_handler:
 
 .global syscall_Handler
 .type syscall_Handler, %function
-.extern serial_puts
+.extern kputs
 
 .align 2
 syscall_Handler:

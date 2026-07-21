@@ -1,6 +1,6 @@
 #include <VMM.h>
-#include <stddef.h>
 #include <vboard.h>
+#include <types.h>
 #include <kstdio.h>
 
 // O diretório de páginas principal do próprio kernel
