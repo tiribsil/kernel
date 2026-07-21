@@ -22,8 +22,6 @@ SECTIONS {
         *(.data) /* Variáveis inicializadas. */
     }
 
-    __code_data_end = .;
-
     .bss : {
         *(.bss)  /* Variáveis não inicializadas. */
     }
