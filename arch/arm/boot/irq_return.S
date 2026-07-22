@@ -9,6 +9,8 @@ irq_return:
 
    ldr sp, [r0, #TRAPFRAME_OFFSET]  @ carrega o valor do campo tf do processo atual como nova pilha
 
+   add r1, sp, #(17 * 4)            @ Soma o tamanho exato do Trapframe (17 registradores)
+   str r1, [r0, #TRAPFRAME_OFFSET]  @ Salva de volta no current->tf
 
    ldr lr, [sp, #(16 * 4)]          @ lr = cpsr_usr
    msr spsr_cxsf, lr                @ spsr = cpsr_usr (_cxsf para setar flags especificas)

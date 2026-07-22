@@ -7,12 +7,12 @@
 #include <process.h>
 #include <scheduler.h>
 #include <programas.h>
+#include <teste_io.h>
 
 extern page_directory_t *vmm_get_kernel_directory(void);
 
 void kmain(void) {
     setup_core_for_irq();
-    kstdio_init();
     // Inicialização do GIC e interrupção por timer
     kputs("Configurando GIC e Timer...\n");
     init_gic();
@@ -20,6 +20,8 @@ void kmain(void) {
 
     kputs("Ligando interrupções...\n");
     enable_cpu_interrupts();
+
+    kstdio_init();
 
     // TESTES DO GERENCIADOR DE MEMÓRIA //
     //Testando o Gerenciador Físico (PMM)
@@ -54,8 +56,9 @@ void kmain(void) {
     // FIM DOS TESTES DO GERENCIADOR DE MEMORIA //
     
     kputs("Executando em modo ARM bare-metal no QEMU.\n");
+    kputs("Iniciando shell...\n");
 
-    first_process(programainicio);
+    first_process(prog_shell);
 
     abort();
 
