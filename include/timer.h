@@ -2,7 +2,7 @@
 #define TIMER_H
 
 // frequencia das interrupcoes (Hz)
-#define SYSTEM_HZ 1
+#define SYSTEM_HZ 100
 
 // funcao publica de inicializacao
 void init_timer(void);

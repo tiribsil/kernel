@@ -3,6 +3,7 @@
 #include <stringutils.h>
 
 void programainicio(int argc, char** argv) {
+    (void)argc; (void)argv;
     write("Processo rodando programa inicio\n", 50);
 
     if(!fork()) exec(programa1, 0, 0);
@@ -11,6 +12,7 @@ void programainicio(int argc, char** argv) {
 }
 
 void programa1(int argc, char** argv) {
+    (void)argc; (void)argv;
     while(1) {
         write("Processo rodando programa 1\n", 50);
         for(volatile int i = 0; i < 50000000; i++); 
@@ -18,6 +20,7 @@ void programa1(int argc, char** argv) {
 }
 
 void programa2(int argc, char** argv) {
+    (void)argc; (void)argv;
     while(1) {
         write("Processo rodando programa 2\n", 50);
         for(volatile int i = 0; i < 50000000; i++); 
@@ -25,6 +28,7 @@ void programa2(int argc, char** argv) {
 }
 
 void prog_shell(int argc, char** argv) {
+    (void)argc; (void)argv;
     struct {
         const char *cmd_name;
         void (*func)(int, char**);
@@ -59,6 +63,7 @@ void prog_shell(int argc, char** argv) {
 	    while(*p && *p != ' ' && *p != '\n') p++;
 	}
 	child_argv[child_argc] = 0;
+	if(!child_argc) continue;
 
         for(int i = 0; i < MAX_WORD; i++) 
             if(child_argv[child_argc - 1][i] == '\n') { child_argv[child_argc - 1][i] = 0; break; }

@@ -10,6 +10,7 @@ irq_entry:
    @ salvou o CPSR do processo em SPSR_irq
    @ salvou o PC do processo + 4 em LR_irq
 
+   sub lr, lr, #4
 
    @ r0–r12 ainda pertencem ao contexto interrompido 
 
@@ -29,14 +30,14 @@ irq_entry:
    sub sp, sp, #(17 * 4)         @ temos 17 variáveis na struct
    stmia sp, {r0-r12}            @ salva R0–R12 na stack
 
-   add r12, sp, #(13*4)     
-   stmia r12, {sp, lr}^           @ salva sp_usr e lr_usr
-
-   str lr, [sp, #(15 * 4)]       @ salva o PC na pilha
+   str lr, [sp, #(15 * 4)]       @ salva o PC na pilha PRIMEIRO!
    
    mrs r12, spsr                  @ pega o CPSR do processo
-   
    str r12, [sp, #(16 * 4)]       @ salva o CPSR na pilha
+   
+   add r12, sp, #(13*4)     
+   stmia r12, {sp, lr}^           @ salva sp_usr e lr_usr POR ÚLTIMO
+   nop                            @ Esvazia o pipeline para garantir
 
    ldr r12, =current              @ carrega o endereço da variável global estática current
    ldr r12, [r12]                 @ carrega o valor contido em current (endereço do processo atual)

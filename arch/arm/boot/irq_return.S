@@ -12,15 +12,16 @@ irq_return:
    add r1, sp, #(17 * 4)            @ Soma o tamanho exato do Trapframe (17 registradores)
    str r1, [r0, #TRAPFRAME_OFFSET]  @ Salva de volta no current->tf
 
-   ldr lr, [sp, #(16 * 4)]          @ lr = cpsr_usr
-   msr spsr_cxsf, lr                @ spsr = cpsr_usr (_cxsf para setar flags especificas)
+   ldr r0, [sp, #(16 * 4)]          @ r0 = cpsr_usr (não usar lr aqui)
+   msr spsr_cxsf, r0                @ spsr = cpsr_usr
 
    ldr lr, [sp, #(15 * 4)]          @ lr = pc_usr
 
-
-   ldmia sp!, {r0-r12}              @ carrega os registradores r0-r12
-
-   ldmia sp, {sp, lr}^              @ restaura sp_usr e lr_usr
+   add r0, sp, #(13 * 4)            @ Usa r0 temporariamente como ponteiro
+   ldmia r0, {sp, lr}^              @ restaura sp_usr e lr_usr usando r0
+   nop                              @ Esvazia o pipeline
+   
+   ldmia sp, {r0-r12}               @ carrega os registradores r0-r12 finais
 
    movs pc, lr                      @ volta para pc_usr e copia SPSR = CPSR
 

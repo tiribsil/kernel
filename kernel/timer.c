@@ -16,7 +16,7 @@ static inline uint32_t read_cntfrq(void) {
 
 // função que será chamada quando a interrupção for ativada
 static void timer_callback(void) {
-  kputs(">>> TICK DO TIMER <<<\n");
+  //kputs(">>> TICK DO TIMER <<<\n");
 
   // recarrega o timer
   __asm__ volatile("mcr p15, 0, %0, c14, c2, 0" ::"r"(ticks_p_q));

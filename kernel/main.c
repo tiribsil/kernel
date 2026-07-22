@@ -18,9 +18,6 @@ void kmain(void) {
     init_gic();
     init_timer();
 
-    kputs("Ligando interrupções...\n");
-    enable_cpu_interrupts();
-
     kstdio_init();
 
     // TESTES DO GERENCIADOR DE MEMÓRIA //
@@ -57,6 +54,9 @@ void kmain(void) {
     
     kputs("Executando em modo ARM bare-metal no QEMU.\n");
     kputs("Iniciando shell...\n");
+
+    kputs("Ligando interrupções...\n");
+    //enable_cpu_interrupts();
 
     first_process(prog_shell);
 
