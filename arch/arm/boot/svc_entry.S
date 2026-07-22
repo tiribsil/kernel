@@ -43,5 +43,6 @@ svc_entry:
 
    str sp,[r12, #TRAPFRAME_OFFSET] @ atualiza o valor de tf
 
-   bl syscall_Handler     
+   bl syscall_Handler
+   str r0, [sp, #0]
    b irq_return                  @ código que vai retornar ao processo
