@@ -7,6 +7,8 @@
 #define NULL ((void*)0)
 #endif
 
+extern void exit(void);
+
 process current = NULL;
 
 pid_t used_pids[MAX_PROCESS_COUNT] = {0};
@@ -90,7 +92,7 @@ void sys_exec(void (*programa)(int, char**), int argc, char** argv) {
     // atualiza os ponteiros de pilha e pc
     p->tf->pc_usr = (unsigned int)programa | 1;
     p->tf->sp_usr = usrstack_top;
-    p->tf->lr_usr = 0;
+    p->tf->lr_usr = (unsigned int)exit;
 
     // coloca o resultado do exec para executar em modo usuario
     p->tf->cpsr_usr = 0x30;
@@ -133,6 +135,8 @@ int sys_fork(){
     // configura os frame pointers
     unsigned int r11_offset = newprocess->parent->tf->r11 - (unsigned int)newprocess->parent->usr_stack;
     newprocess->tf->r11 = (unsigned int)newprocess->usr_stack + r11_offset;
+    unsigned int r7_offset = newprocess->parent->tf->r7 - (unsigned int)newprocess->parent->usr_stack;
+    newprocess->tf->r7 = (unsigned int)newprocess->usr_stack + r7_offset;
 
     newprocess->context.sp = (unsigned int)newprocess->tf;
     newprocess->context.lr = (unsigned int)fork_return; // prepara o retorno da troca de contexto para fork return
@@ -141,7 +145,11 @@ int sys_fork(){
     pll_node* newprocess_block_node = pll_node_new(newprocess);
     pcb_insert(0, newprocess_block_node);
 
-   return current->tf->r0;
+    extern process process_table[MAX_PROCESS_COUNT];
+    process_table[pid] = newprocess;
+
+
+    return current->tf->r0;
 }
 
 void first_process(void (*programa)(int, char**)){

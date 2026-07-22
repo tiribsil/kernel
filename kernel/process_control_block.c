@@ -155,26 +155,27 @@ void pcb_elect(void)
         }
     }
 
-    for(unsigned i=0; i < SCHEDULER_PCB_ENTRIES_AMOUNT; ++i)
+    for(unsigned i = 0; i < SCHEDULER_PCB_ENTRIES_AMOUNT; ++i)
     {
-        pll_node *current_node = pll_idx(pcb[i].process_list, pcb[i].next_process);
-        if(current_node == NULL) continue;
-        short next_process = pcb[i].next_process+1;
+        if (pcb[i].process_count == 0) continue;
 
-        while(current_node->proc->state != READY)
+        for(int tries = 0; tries < pcb[i].process_count; tries++) 
         {
-            next_process++;
-            current_node = current_node->next;
-            if(current_node == NULL) goto end;
+            pll_node *current_node = pll_idx(pcb[i].process_list, pcb[i].next_process);
+
+            if(current_node != NULL && current_node->proc->state == READY) 
+            {
+                process old_current = current;
+                running_for = 0;
+                pcb[i].next_process = (pcb[i].next_process + 1) % pcb[i].process_count;
+
+                current = current_node->proc;
+                current->state = RUNNING;
+                context_switch(&old_current->context, &current->context);
+                return;
+            }
+            pcb[i].next_process = (pcb[i].next_process + 1) % pcb[i].process_count;
         }
-        process old_current = current;
-        running_for = 0;
-        pcb[i].next_process = next_process % pcb[i].process_count;
-        current = current_node->proc;
-        current->state = RUNNING;
-        context_switch(&old_current->context, &current->context);
-        break;
-        end:
     }
     /* não sei oq aconteceria caso nenhum processo fosse elegível, acho que *
      * o kernel só continuaria rodando até um desbloquear                   */ 

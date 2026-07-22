@@ -13,18 +13,18 @@ void programainicio(int argc, char** argv) {
 
 void programa1(int argc, char** argv) {
     (void)argc; (void)argv;
-    while(1) {
+    for(int i = 0; i < 10; i++) {
         write("Processo rodando programa 1\n", 50);
-        for(volatile int i = 0; i < 50000000; i++); 
     }
+    //exit();
 }
 
 void programa2(int argc, char** argv) {
     (void)argc; (void)argv;
-    while(1) {
+    for(int i = 0; i < 10; i++) {
         write("Processo rodando programa 2\n", 50);
-        for(volatile int i = 0; i < 50000000; i++); 
     }
+    exit();
 }
 
 void prog_shell(int argc, char** argv) {
