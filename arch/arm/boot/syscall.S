@@ -1,28 +1,20 @@
 // adicionar aqui codigo da chamada de sistema, 
 //a ordem deve ser igual a da tabela
-.equ PRINTF_CALL, 0
-.equ ABORT_CALL, 1
-.equ SYS_FORK, 2
-.equ SYS_EXEC, 3
-.equ SYS_EXIT, 4
+.equ ABORT_CALL, 0
+.equ SYS_FORK, 1
+.equ SYS_EXEC, 2
+.equ SYS_EXIT, 3
+.equ SYS_READ, 4
+.equ SYS_WRITE, 5
+.equ SYS_WAITPID, 6
 .text
-
-
-.global printf
-.type printf, %function
-printf:
-    push {lr}
-    mov r1, r0 
-    mov r0, #PRINTF_CALL
-    SVC #0
-    pop {pc} 
 
 
 .global abort
 .type abort, %function
 abort:
     push {lr}
-    mov r0, #ABORT_CALL
+    mov r7, #ABORT_CALL
     SVC #0
     pop {pc} 
 
@@ -31,7 +23,7 @@ abort:
 .type fork, %function
 fork:
     push {lr}
-    mov r0, #SYS_FORK
+    mov r7, #SYS_FORK
     SVC #0
     pop {pc} 
 
@@ -40,8 +32,7 @@ fork:
 .type exec, %function
 exec:
     push {lr}
-    mov r1, r0 
-    mov r0, #SYS_EXEC
+    mov r7, #SYS_EXEC
     SVC #0
     pop {pc} 
 
@@ -50,10 +41,36 @@ exec:
 .type exit, %function
 exit:
     push {lr}
-    mov r0, #SYS_EXIT
+    mov r7, #SYS_EXIT
     SVC #0
-    pop {pc} 
+    pop {pc}
 
+
+.global read
+.type read, %function
+read:
+    push {lr}
+    mov r7, #SYS_READ
+    SVC #0
+    pop {pc}
+
+
+.global write
+.type write, %function
+write:
+    push {lr}
+    mov r7, #SYS_WRITE
+    SVC #0
+    pop {pc}
+
+
+.global waitpid
+.type waitpid, %function
+waitpid:
+    push {lr}
+    mov r7, #SYS_WAITPID
+    SVC #0
+    pop {pc}
 
 /*
 

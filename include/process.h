@@ -39,7 +39,7 @@ extern process current;
 
 void fork_return(void);
 
-void first_process(void (*programa)(void));
+void first_process(void (*programa)(int, char**));
 
 pid_t create_pid();
 
@@ -94,6 +94,8 @@ struct process{
 
     enum State state; // estado do processo
     enum Block_Reason blocked_by;
+
+    pid_t waiting_for_pid;
 
     // Informações para o Kernel
     pid_t pid;

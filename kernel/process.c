@@ -34,11 +34,12 @@ void free_pid(pid_t pid){
 }
 
 void sys_exit(){
-    pll_node* current_pll_node = pcb_get_node_pid(current->pid);     // Atualiza list_location e retorna o no da fila
-    pcb_remove(list_location, current_pll_node);                     // Remove o no da fila
-
-    free_pid(current->pid);                                          // Libera o pid
     current->state = ZOMBIE;                                         // Muda o estado para Zombie
+    
+    if (current->parent && current->parent->state == BLOCKED &&
+        current->parent->waiting_for_pid == current->pid)
+        current->parent->state = READY; // Desbloqueia o pai se estava esperando
+
     pcb_elect();                                                     // Chama o escalonador
 }
 
@@ -62,7 +63,7 @@ void fork_return(void){
     irq_return();
 }
 
-void sys_exec(void (*programa)(void)) {
+void sys_exec(void (*programa)(int, char**), int argc, char** argv) {
     // copia as intrucoes das funcoes para a memoria do processo
     process p = current;
 
@@ -70,9 +71,10 @@ void sys_exec(void (*programa)(void)) {
 
     p->tf = (struct trapframe*)((unsigned)p->kstack + PAGE_SIZE - sizeof(struct trapframe));
 
+    // passar os argumentos
+    p->tf->r0 = argc;
+    p->tf->r1 = (unsigned int)argv;
     // zeramos os registradores apenas por questoes de seguranca e para facilitar a verificacao da execucao do exec
-    p->tf->r0 = 0;
-    p->tf->r1 = 0;
     p->tf->r2 = 0;
     p->tf->r3 = 0;
     p->tf->r4 = 0;
@@ -107,6 +109,7 @@ int sys_fork(){
     newprocess->state = READY; // coloca como pronto
     newprocess->pid = pid;
     newprocess->priority = current->priority;
+    newprocess->waiting_for_pid = 0;
 
     // copia toda as pilhas do pai para o filho
     for(int i = 0; i < PAGE_SIZE; i++){
@@ -141,7 +144,7 @@ int sys_fork(){
    return current->tf->r0;
 }
 
-void first_process(void (*programa)(void)){
+void first_process(void (*programa)(int, char**)){
     pid_t pid = create_pid(); // gera um pid
 
     process newprocess = (process)pmm_alloc_block();  // ira ser substituido por malloc
@@ -159,6 +162,33 @@ void first_process(void (*programa)(void)){
 
     current = newprocess;
 
-    sys_exec(programa); //executa o programa inicial
+    sys_exec(programa, 0, 0); //executa o programa inicial
     irq_return();
+}
+
+int sys_waitpid(int pid){
+    extern process process_table[MAX_PROCESS_COUNT];
+    process child = process_table[pid];
+    if (!child) return -1;
+
+    current->waiting_for_pid = pid;
+
+    while (child->state != ZOMBIE) {
+        current->state = BLOCKED;
+	pcb_elect();
+    }
+
+    current->waiting_for_pid = 0;
+
+    pll_node* child_node = pcb_get_node_pid(pid);
+    if (child_node) pcb_remove(list_location, child_node);
+
+    pmm_free_page((uintptr_t)child->usr_stack);
+    pmm_free_page((uintptr_t)child->kstack);
+    pmm_free_page((uintptr_t)child);
+
+    free_pid(pid);
+    process_table[pid] = 0;
+
+    return pid;
 }

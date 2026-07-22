@@ -1,4 +1,3 @@
-
 .text
 
 // precaução caso seja apagado no interrupts.S
@@ -15,20 +14,13 @@
 //modo usuário e supervisor, syscall.S
 .global Syscall_Table
 Syscall_Table:
-    .word printf_handler
     .word abort_handler
     .word fork_handler
     .word exec_handler
     .word exit_handler
-
-
-
-printf_handler:
-    mov r0,r1
-    push {lr}
-    bl kputs
-    mov r0, #10
-    pop {pc}
+    .word read_handler
+    .word write_handler
+    .word waitpid_handler
 
 
 abort_handler:
@@ -36,41 +28,48 @@ abort_handler:
     orr r0, r0, #0x00000009      //System Reset command ID (0x84000009)
     hvc #0                       //hypervisor call, pois estamos usando uma cpu virtual
 
-
 fork_handler:
     push {lr}
     bl sys_fork
     pop {pc}
 
-
 exec_handler:
-    mov r0,r1
     push {lr}
     bl sys_exec
     pop {pc}
-
 
 exit_handler:
     push {lr}
     bl sys_exit
     pop {pc}
 
+read_handler:
+    push {lr}
+    bl sys_read
+    pop {pc}
+
+write_handler:
+    push {lr}
+    bl sys_write
+    pop {pc}
+
+waitpid_handler:
+    push {lr}
+    bl sys_waitpid
+    pop {pc}
 
 .global syscall_Handler
 .type syscall_Handler, %function
-.extern kputs
+.extern serial_puts
 
 .align 2
 syscall_Handler:
-   
-    ldr r3, =Syscall_Table //carrega a tabela
-    ldr r3, [r3,r0,LSL #2] // calcula o endereço da chamada
-    bx r3
+    cmp r7, #7                     @ 7 é a quantidade de syscalls (0 a 6)
+    bhs syscall_end                @ Branch se Higher or Same para o fim
 
+    ldr r3, =Syscall_Table         @ carrega a tabela
+    ldr r3, [r3, r7, LSL #2]       @ calcula o endereço lendo o R7 (R7 * 4)
+    bx r3                          @ pula para o handler
 
-
-
-
-
-
-
+syscall_end:
+    bx lr

@@ -242,3 +242,26 @@ void kprintf(const char *format, ...) {
 
   va_end(args);
 }
+
+int sys_write(char* buffer, unsigned max_len) {
+    if (!buffer || !max_len) return 0;
+
+    unsigned chars_written = 0;
+    while (chars_written < max_len && buffer[chars_written] != '\0') {
+        kputc(buffer[chars_written]);
+        chars_written++;
+    }
+
+    return chars_written;
+}
+
+int sys_read(char* buffer, unsigned max_len) {
+    if (!buffer || max_len <= 1) return 0;
+
+    kgets(buffer, max_len);
+    unsigned length = 0;
+    while (length < max_len && buffer[length] != '\0') {
+        length++;
+    }
+    return length;
+}
