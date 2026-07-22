@@ -90,12 +90,13 @@ void sys_exec(void (*programa)(int, char**), int argc, char** argv) {
     p->tf->r12 = 0;
 
     // atualiza os ponteiros de pilha e pc
-    p->tf->pc_usr = (unsigned int)programa | 1;
+    p->tf->pc_usr = (unsigned int)programa;
     p->tf->sp_usr = usrstack_top;
     p->tf->lr_usr = (unsigned int)exit;
 
     // coloca o resultado do exec para executar em modo usuario
-    p->tf->cpsr_usr = 0x30;
+    p->tf->cpsr_usr = 1 << 4;
+    p->tf->cpsr_usr |= ((unsigned int)programa & 1) << 5;
 
     return;
 }
