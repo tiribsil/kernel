@@ -103,6 +103,7 @@ void sys_exec(void (*programa)(int, char**), int argc, char** argv) {
 
 int sys_fork(){
     pid_t pid = create_pid(); // gera um pid
+    if(pid >= MAX_PROCESS_COUNT) return -1;
 
     process newprocess = (process)pmm_alloc_block(); // a ser substituido por malloc
     newprocess->usr_stack = pmm_alloc_block(); // a ser substituido por malloc
@@ -131,7 +132,6 @@ int sys_fork(){
     newprocess->tf->sp_usr = (unsigned int)newprocess->usr_stack + sp_offset;
 
     // prepara os retornos diferentes
-    newprocess->parent->tf->r0 = newprocess->pid;
     newprocess->tf->r0 = 0;
     // configura os frame pointers
     unsigned int r11_offset = newprocess->parent->tf->r11 - (unsigned int)newprocess->parent->usr_stack;
@@ -150,7 +150,7 @@ int sys_fork(){
     process_table[pid] = newprocess;
 
 
-    return current->tf->r0;
+    return pid;
 }
 
 void first_process(void (*programa)(int, char**)){
