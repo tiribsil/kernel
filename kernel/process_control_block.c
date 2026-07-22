@@ -68,18 +68,15 @@ pll_node* pcb_get_node_pid(pid_t pid)
     for(unsigned i=0; i < SCHEDULER_PCB_ENTRIES_AMOUNT; ++i)
     {
         pll_node *current_node = pcb[i].process_list;
-        if(current_node == NULL) continue;
-
-        do
-        {
+        while (current_node)
+	{
             if(current_node->proc->pid == pid)
             {
                 list_location = i;
                 return current_node;
             }
             current_node = current_node->next;
-            if(current_node == NULL) break;
-        } while(current_node->next);
+        }
     }
     return NULL;
 }

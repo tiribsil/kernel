@@ -68,6 +68,8 @@ pll_node* pll_rem_stt(pll_node* start_node)
 
 pll_node* pll_rem(pll_node* start_node, pll_node* removing_node)
 {
+    if(start_node == NULL || removing_node == NULL) return start_node;
+
     if(start_node == removing_node)
     {
         return start_node->next;

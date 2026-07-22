@@ -13,69 +13,69 @@
 .global abort
 .type abort, %function
 abort:
-    push {lr}
+    push {r7, lr}
     mov r7, #ABORT_CALL
     SVC #0
-    pop {pc} 
+    pop {r7, pc} 
 
 
 .global fork
 .type fork, %function
 fork:
-    push {lr}
+    push {r7, lr}
     mov r7, #SYS_FORK
     SVC #0
-    pop {pc} 
+    pop {r7, pc} 
 
 
 .global exec
 .type exec, %function
 exec:
-    push {lr}
+    push {r7, lr}
     mov r7, #SYS_EXEC
     SVC #0
-    pop {pc} 
+    pop {r7, pc} 
 
 
 .global exit
 .type exit, %function
 exit:
-    push {lr}
+    push {r7, lr}
     mov r7, #SYS_EXIT
     SVC #0
-    pop {pc}
+    pop {r7, pc}
 
 
 .global read
 .type read, %function
 read:
-    push {lr}
+    push {r7, lr}
     mov r7, #SYS_READ
     SVC #0
-    pop {pc}
+    pop {r7, pc}
 
 
 .global write
 .type write, %function
 write:
-    push {lr}
+    push {r7, lr}
     mov r7, #SYS_WRITE
     SVC #0
-    pop {pc}
+    pop {r7, pc}
 
 
 .global waitpid
 .type waitpid, %function
 waitpid:
-    push {lr}
+    push {r7, lr}
     mov r7, #SYS_WAITPID
     SVC #0
-    pop {pc}
+    pop {r7, pc}
 
 /*
 
 exemplo:
-    push {lr} guardar o endereço da chamada
+    push {r7, lr} guardar o endereço da chamada
 
     swap de registradores para organizar parametros
 
@@ -85,7 +85,7 @@ exemplo:
     SVC #0 // É a instrução trap, 
            // necessária para ir ao modo supervisor e executar qualquer chamada
 
-    pop {pc} retorna para quem chamou
+    pop {r7, pc} retorna para quem chamou
     
  */
 
