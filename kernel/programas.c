@@ -63,6 +63,8 @@ void prog_shell(int argc, char** argv) {
             child_argv[child_argc] = p;
 	    child_argc++;
 	    while(*p && *p != ' ' && *p != '\n') p++;
+	    if(*p == ' ') *p = 0;
+	    p++;
 	}
 	child_argv[child_argc] = 0;
 	if(!child_argc) continue;
