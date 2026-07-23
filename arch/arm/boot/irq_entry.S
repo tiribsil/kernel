@@ -44,5 +44,20 @@ irq_entry:
 
    str sp,[r12, #TRAPFRAME_OFFSET] @ atualiza o valor de tf
 
-   blx irq_dispatcher_c
+   mov r0, sp                     @ Salva nosso SP_irq temporariamente em r0
+   
+   mrs r1, cpsr
+   bic r1, r1, #0x1F
+   orr r1, r1, #0x13              @ Configura os bits para Modo SVC (0x13)
+   msr cpsr_c, r1                 @ O GATILHO: A CPU agora está em SVC!
+   
+   mov sp, r0                     @ Entrega o ponteiro da pilha pro SP_svc
+   
+   blx irq_dispatcher_c           @ Chama o C (agora o Escalonador roda blindado)
+
+   mrs r1, cpsr
+   bic r1, r1, #0x1F
+   orr r1, r1, #0x12              @ Devolve os bits para Modo IRQ (0x12)
+   msr cpsr_c, r1                 @ A CPU volta para IRQ
+
    b irq_return                  @ código que vai retornar ao processo

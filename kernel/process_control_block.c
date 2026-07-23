@@ -97,8 +97,19 @@ void pcb_insert(unsigned priority_level, pll_node* inserting_proc)
 */
 void pcb_remove(unsigned priority_level, pll_node* removing_proc)
 {
-    pcb[priority_level].process_list = pll_rem(pcb[priority_level].process_list, removing_proc);
+    // Verifica se o processo realmente está nesta fila
+    pll_node* curr = pcb[priority_level].process_list;
+    int found = 0;
+    while(curr) {
+        if(curr == removing_proc) { found = 1; break; }
+        curr = curr->next;
+    }
+    
+    // Se não está, aborta para não quebrar a contagem
+    if(!found) return; 
 
+    pcb[priority_level].process_list = pll_rem(pcb[priority_level].process_list, removing_proc);
+    
     if(pcb[priority_level].process_count) pcb[priority_level].process_count -= 1;
     if(pcb[priority_level].next_process >= pcb[priority_level].process_count) pcb[priority_level].next_process = 0;
 }
