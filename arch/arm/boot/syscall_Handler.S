@@ -25,7 +25,7 @@ Syscall_Table:
 
 abort_handler:
     mov r0, #0x84000000          //Codigo base da especificação PSCI
-    orr r0, r0, #0x00000009      //System Reset command ID (0x84000009)
+    orr r0, r0, #0x00000008      //System Off command ID (0x84000008)
     hvc #0                       //hypervisor call, pois estamos usando uma cpu virtual
 
 fork_handler:

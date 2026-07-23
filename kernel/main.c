@@ -51,16 +51,11 @@ void kmain(void) {
     kputs("Resultado da leitura: ");
     kputs((const char *)mem_teste);
     // FIM DOS TESTES DO GERENCIADOR DE MEMORIA //
-    
+
     kputs("Executando em modo ARM bare-metal no QEMU.\n");
     kputs("Iniciando shell...\n");
 
-    kputs("Ligando interrupções...\n");
-    //enable_cpu_interrupts();
-
     first_process(prog_shell);
-
-    abort();
 
     return;
 }

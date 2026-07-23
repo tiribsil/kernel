@@ -78,7 +78,7 @@ void prog_shell(int argc, char** argv) {
             child_argv[child_argc] = 0;
         }
 
-        if(!strcmp(child_argv[0], "exit")) exit();
+        if(!strcmp(child_argv[0], "exit")) abort();
 
         pid = fork();
         if(pid){
