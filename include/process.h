@@ -21,7 +21,8 @@ enum State{
 };
 
 enum Block_Reason{
-    BT_TIMER
+    BT_TIMER,
+    BT_UART
 };
 
 enum process_blocks {WAIT_SLEEP, WAIT_FILE};

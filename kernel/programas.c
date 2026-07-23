@@ -43,6 +43,8 @@ void prog_shell(int argc, char** argv) {
         {0, 0}
     };
 
+    if(!fork()) while(1); // Idle process para a cpu ter algo pra fazer
+
     #define MAX_COMMAND 256
     #define MAX_WORD 64
 

@@ -138,20 +138,21 @@ void pcb_elect(void)
         pll_node *current_process_node = pcb_get_node_pid(current->pid); // atualiza "list_location"
         unsigned quantum = pcb[list_location].quantum;
 
-        if(current->state == RUNNING && running_for < (quantum + SCHEDULER_QUANTUM_MARGIN))
-        {
-            return;
-        } else
-        {
-            if(running_for <= quantum-SCHEDULER_QUANTUM_MARGIN){
-                pcb_climb(current_process_node);
+        if (current->state == RUNNING) {
+            if (running_for < (quantum + SCHEDULER_QUANTUM_MARGIN)) {
+                return; // Mantém rodando
+            } else {
+                // Quantum expirou, reajusta prioridade e cede a CPU
+                if (running_for <= quantum-SCHEDULER_QUANTUM_MARGIN) {
+                    pcb_climb(current_process_node);
+                }
+                else if (running_for >= quantum-SCHEDULER_QUANTUM_MARGIN) {
+                    pcb_fall(current_process_node);
+                }
+                running_for = 0;
+                current->state = READY;
+                current->blocked_by = BT_TIMER;
             }
-            else if(running_for >= quantum-SCHEDULER_QUANTUM_MARGIN){
-                pcb_fall(current_process_node);
-            }
-            running_for = 0;
-            current->state = READY;
-            current->blocked_by = BT_TIMER;
         }
     }
 

@@ -169,6 +169,9 @@ void first_process(void (*programa)(int, char**)){
     pll_node* newprocess_block_node = pll_node_new(newprocess);
     pcb_insert(0, newprocess_block_node);
 
+    extern process process_table[MAX_PROCESS_COUNT];
+    process_table[pid] = newprocess;
+
     current = newprocess;
 
     sys_exec(programa, 0, 0); //executa o programa inicial

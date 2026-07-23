@@ -1,6 +1,7 @@
 #include <uart.h>
-
+#include <scheduler.h>
 #include <interrupts_handler.h>
+#include <process.h>
 
 #define UART0_BASE 0x09000000U
 
@@ -164,6 +165,21 @@ void uart_irq_handler(void) {
       char c = (char)(*UART_DR);
       uart_buffer_push(c);
     }
+
+    // DESPERTADOR DO SO:
+    // Procura por processos que dormiram esperando I/O e os acorda.
+    extern process process_table[MAX_PROCESS_COUNT];
+    for (int i = 1; i < MAX_PROCESS_COUNT; i++) {
+        // Só acorda se estiver bloqueado E se o motivo for a UART!
+        if (process_table[i] && 
+            process_table[i]->state == BLOCKED && 
+            process_table[i]->blocked_by == BT_UART) {
+            
+            process_table[i]->state = READY;
+            // Opcional, mas de bom tom: limpa a flag
+            process_table[i]->blocked_by = BT_TIMER; 
+        }
+    }
   }
 }
 
@@ -174,11 +190,11 @@ char uart_getc(void) {
   char c;
 
   while (!uart_buffer_pop(&c)) {
-    // Fallback polling direto do hardware se nao tiver IRQs
-    if (!(*UART_FR & UART_FR_RXFE)) {
-      c = (char)(*UART_DR);
-      return c;
-    }
+    if (!current) continue;
+    current->state = BLOCKED;
+    current->blocked_by = BT_UART;
+
+    pcb_elect();
   }
 
   return c;
