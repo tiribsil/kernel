@@ -59,12 +59,6 @@ process process_table[MAX_PROCESS_COUNT] = {0};
 // funcao de retorno para processos recém clonados
 extern void irq_return(void);
 
-void fork_return(void){
-    irq_end_current();
-    enable_cpu_interrupts();
-    irq_return();
-}
-
 void sys_exec(void (*programa)(int, char**), int argc, char** argv) {
     // copia as intrucoes das funcoes para a memoria do processo
     process p = current;
@@ -140,7 +134,7 @@ int sys_fork(){
     newprocess->tf->r7 = (unsigned int)newprocess->usr_stack + r7_offset;
 
     newprocess->context.sp = (unsigned int)newprocess->tf;
-    newprocess->context.lr = (unsigned int)fork_return; // prepara o retorno da troca de contexto para fork return
+    newprocess->context.lr = (unsigned int)fork_return_asm; // prepara o retorno da troca de contexto para fork return
 
     // inserir na fila de maior prioridade do escalonador
     pll_node* newprocess_block_node = pll_node_new(newprocess);
@@ -175,7 +169,7 @@ void first_process(void (*programa)(int, char**)){
     current = newprocess;
 
     sys_exec(programa, 0, 0); //executa o programa inicial
-    irq_return();
+    restore_user_context();
 }
 
 int sys_waitpid(int pid){

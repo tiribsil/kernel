@@ -5,44 +5,38 @@
 .type svc_entry, %function
 
 svc_entry:
-   @ código considera que o hardware fez automaticamente:
-   @ trocou para SP_irq, que é a stack do kernel nesse momento
-   @ salvou o CPSR do processo em SPSR_irq
-   @ salvou o PC do processo + 4 em LR_irq
+   @ Aloca o trapframe diretamente no SP_svc ativo
+   sub sp, sp, #(17 * 4)
+   stmia sp, {r0-r12}
 
-
-   @ r0–r12 ainda pertencem ao contexto interrompido 
-
-   str r0, [sp, #-4]             @ salva momentaneamente r0 e r1
-   str r1, [sp, #-8]
-
-   mov r1, sp                    @ usamos o r1 recém-liberado para guardar o SP_irq
+   str lr, [sp, #(15 * 4)]       @ Salva o PC (LR_svc)
    
-   ldr r0, =current              @ carrega o endereço da variável global estática current
-   ldr r0, [r0]                  @ carrega o valor contido em current (endereço do processo atual)
-
-   ldr sp, [r0, #TRAPFRAME_OFFSET]  @ carrega o valor do campo tf do processo atual como nova pilha
-   
-   ldr r0,[r1, #-4]              @ restaura r0 e r1
-   ldr r1,[r1, #-8]
-
-   sub sp, sp, #(17 * 4)         @ temos 17 variáveis na struct
-   stmia sp, {r0-r12}            @ salva R0–R12 na stack
-
-   str lr, [sp, #(15 * 4)]       @ salva o PC na pilha PRIMEIRO!
-   
-   mrs r12, spsr                  @ pega o CPSR do processo
-   str r12, [sp, #(16 * 4)]       @ salva o CPSR na pilha
+   mrs r12, spsr                 
+   str r12, [sp, #(16 * 4)]      @ Salva o CPSR (SPSR_svc)
    
    add r12, sp, #(13*4)     
-   stmia r12, {sp, lr}^           @ salva sp_usr e lr_usr POR ÚLTIMO
-   nop                            @ Esvazia o pipeline para garantir
+   stmia r12, {sp, lr}^          @ Salva SP_usr e LR_usr
+   nop                            
 
-   ldr r12, =current              @ carrega o endereço da variável global estática current
-   ldr r12, [r12]                 @ carrega o valor contido em current (endereço do processo atual)
+   @ Atualiza o current->tf
+   ldr r12, =current              
+   ldr r12, [r12]                 
+   str sp, [r12, #TRAPFRAME_OFFSET] 
 
-   str sp,[r12, #TRAPFRAME_OFFSET] @ atualiza o valor de tf
+   @ PREVENÇÃO: Garante alinhamento de 8 bytes na pilha para o C (Norma AAPCS)
+   mov r4, sp
+   bic sp, sp, #7
+   push {r4, lr}
 
+   @ Chama o tratador de Syscalls 
    bl syscall_Handler
+   
+   @ Restaura a pilha
+   pop {r4, lr}
+   mov sp, r4
+
+   @ Grava o valor de retorno (R0) de volta no trapframe
    str r0, [sp, #0]
-   b irq_return                  @ código que vai retornar ao processo
+   
+   @ Retorna restaurando o trapframe
+   b irq_return

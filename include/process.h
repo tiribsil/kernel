@@ -38,7 +38,8 @@ extern process current;
 
 // **funcoes
 
-void fork_return(void);
+void fork_return_asm(void);
+void restore_user_context(void);
 
 void first_process(void (*programa)(int, char**));
 

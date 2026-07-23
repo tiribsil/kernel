@@ -13,7 +13,7 @@ void programainicio(int argc, char** argv) {
 
 void programa1(int argc, char** argv) {
     (void)argc; (void)argv;
-    for(int i = 0; i < 10; i++) {
+    for(int i = 0; i < 10000; i++) {
         write("Processo rodando programa 1\n", 50);
     }
     //exit();
