@@ -38,6 +38,21 @@ void prog_count(int argc, char** argv) {
     printf("%d!!!\n", limite);
 }
 
+void prog_prime(int argc, char** argv) {
+    int n_primos = atoi(argv[1]);
+    int n = 2;
+    for (int i = 0; i < n_primos; n++) {
+	char eh_primo = 1;
+	for (int j = 2; j < n; j++) {
+	    eh_primo = (n % j) != 0;
+	    if (!eh_primo) break;
+	}
+	if (!eh_primo) continue;
+	printf("Primo número %d: %d\n", i + 1, n);
+	i++;
+    }
+}
+
 void prog_shell(int argc, char** argv) {
     (void)argc; (void)argv;
 
@@ -48,7 +63,7 @@ void prog_shell(int argc, char** argv) {
         {"programa1", programa1},
         {"programa2", programa2},
         {"count", prog_count},
-        //{"prime", prog_prime},
+        {"prime", prog_prime},
         //{"sysinfo", prog_sysinfo},
         //{"matrix", prog_matrix},
 	//{"crash", prog_crash},
