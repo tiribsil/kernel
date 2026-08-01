@@ -32,8 +32,6 @@ enum process_blocks {WAIT_SLEEP, WAIT_FILE};
 
 #define MAX_PROCESS_COUNT 64
 
-#define KSTACK_SIZE 16384
-
 extern process current;
 
 // **funcoes

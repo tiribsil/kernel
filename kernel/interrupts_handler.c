@@ -51,10 +51,10 @@ void irq_dispatcher_c(void) {
   uint32_t irq_id = GICC_IAR & BIT_MASK(10); // Pega ID da interrupção do registrador
   current_irq = irq_id;
 
+  GICC_EOIR = irq_id; // Avisa que está sendo tratada
+
   if (irq_id < MAX_INTERRUPTS && interrupt_handlers[irq_id])
     interrupt_handlers[irq_id](); // Trata, se possível
-
-  GICC_EOIR = irq_id; // Avisa que foi tratada
 }
 
 void irq_end_current(void){
