@@ -3,7 +3,7 @@
 .global irq_handler
 .global setup_core_for_irq
 
-.extern serial_puts 
+.extern kputs 
 
 
 .type irq_handler, %function
@@ -67,22 +67,22 @@ setup_core_for_irq:
 
 undefined_handler:
     ldr r0, =msg_undef
-    bl serial_puts
+    bl kputs
     b .                     
 
 data_abort_handler:
     ldr r0, =msg_abort
-    bl serial_puts
+    bl kputs
     b .
 
 prefetch_abort_handler:
     ldr r0, =msg_prefetch
-    bl serial_puts
+    bl kputs
     b .
 
 svc_handler:
     ldr r0, =msg_svc
-    bl serial_puts
+    bl kputs
     movs pc, lr             
 
 // mensagens

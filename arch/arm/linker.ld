@@ -22,13 +22,11 @@ SECTIONS {
         *(.data) /* Variáveis inicializadas. */
     }
 
-    __code_data_end = .;
-
     .bss : {
         *(.bss)  /* Variáveis não inicializadas. */
     }
 
-    /* Pulamos ("alocamos") 16KB para a pilha usar. */
+    /* Pulamos ("alocamos") 32KB para a pilha usar. */
     stack_bottom = .; /* Rótulo para não estourarmos a pilha. */
     . = . + 0x8000;
     stack_top = .; /* Aqui é o rótulo usado no startup.S. */

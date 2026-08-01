@@ -24,8 +24,10 @@ pll_node* pll_node_new(process proc)
 
 pll_node* pll_add_end(pll_node* start_node, pll_node* adding_node)
 {
+    if (adding_node == NULL) return start_node;
+    adding_node->next = NULL; 
+
     if(start_node == NULL){ 
-        adding_node->next = NULL;
         return adding_node;
     }
     pll_node *current_node = start_node;
@@ -68,17 +70,22 @@ pll_node* pll_rem_stt(pll_node* start_node)
 
 pll_node* pll_rem(pll_node* start_node, pll_node* removing_node)
 {
+    if(start_node == NULL || removing_node == NULL) return start_node;
+
     if(start_node == removing_node)
     {
         return start_node->next;
     }
     pll_node* current_node = start_node;
-    while(current_node->next != removing_node)
+    while(current_node->next && current_node->next != removing_node)
     {
         current_node = current_node->next;
     }
 
-    current_node->next = removing_node->next;
+    if(current_node->next == removing_node) 
+    {
+        current_node->next = removing_node->next;
+    }
     return start_node;
 }
 

@@ -14,14 +14,15 @@ typedef struct
 typedef struct process* process;
 
 enum State{
-    RUNNING, 
-    READY, 
+    RUNNING,
+    READY,
     BLOCKED,
     ZOMBIE
 };
 
 enum Block_Reason{
-    BT_TIMER
+    BT_TIMER,
+    BT_UART
 };
 
 enum process_blocks {WAIT_SLEEP, WAIT_FILE};
@@ -31,15 +32,14 @@ enum process_blocks {WAIT_SLEEP, WAIT_FILE};
 
 #define MAX_PROCESS_COUNT 64
 
-#define KSTACK_SIZE 16384
-
 extern process current;
 
 // **funcoes
 
-void fork_return(void);
+void fork_return_asm(void);
+void restore_user_context(void);
 
-void first_process(void (*programa)(void));
+void first_process(void (*programa)(int, char**));
 
 pid_t create_pid();
 
@@ -95,6 +95,8 @@ struct process{
     enum State state; // estado do processo
     enum Block_Reason blocked_by;
 
+    pid_t waiting_for_pid;
+
     // Informações para o Kernel
     pid_t pid;
     process parent;
@@ -131,15 +133,5 @@ struct process_block_list
   int files[32];
   int waiting_for_file_count;
 };
-
-// simulacao de arquivo com funcoes
-struct arquivo{
-  void (*start)(void);
-  int size;
-};
-
-
-
-
 
 #endif

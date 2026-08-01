@@ -17,20 +17,13 @@ int register_interrupt_handler(uint32_t irq, isr_t handler) {
 void gic_enable_interrupt(uint32_t irq) {
   if (irq >= MAX_INTERRUPTS) return; // ID inválido
 
-  // Os registradores são vetores de números de 32 bits
-  uint32_t reg_index = irq >> 5; // Divide por 32 -> número do vetor onde está o bit
-  uint32_t bit_offset = irq & BIT_MASK(5); // Primeiros 5 bits -> bit certo dentro do número
-
-  GICD_ISENABLER[reg_index] |= (1 << bit_offset); // Ativa o bit, liga a interrupção
+  enable_bit(GICD_ISENABLER, irq); // Ativa o bit, liga a interrupção
 }
 
 void gic_disable_interrupt(uint32_t irq) {
-  if (irq >= MAX_INTERRUPTS) return;
+  if (irq >= MAX_INTERRUPTS) return; // ID inválido
 
-  uint32_t reg_index = irq >> 5;
-  uint32_t bit_offset = irq & BIT_MASK(5);
-
-  GICD_ICENABLER[reg_index] = (1 << bit_offset); // Ativa o bit, desliga a interrupção
+  enable_bit(GICD_ICENABLER, irq); // Ativa o bit, desliga a interrupção
 }
 
 void init_gic(void) {
@@ -58,10 +51,10 @@ void irq_dispatcher_c(void) {
   uint32_t irq_id = GICC_IAR & BIT_MASK(10); // Pega ID da interrupção do registrador
   current_irq = irq_id;
 
+  GICC_EOIR = irq_id; // Avisa que está sendo tratada
+
   if (irq_id < MAX_INTERRUPTS && interrupt_handlers[irq_id])
     interrupt_handlers[irq_id](); // Trata, se possível
-
-  GICC_EOIR = irq_id; // Avisa que foi tratada
 }
 
 void irq_end_current(void){

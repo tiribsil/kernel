@@ -1,8 +1,8 @@
 #ifndef VMM_H
 #define VMM_H
 
-#include "pmm.h"
-
+#include <pmm.h>
+#include <types.h>
 
 // Definições específicas da MMU ARM (Short-Descriptor Format)
 #define NUM_FIRST_LEVEL_ENTRIES  4096   // 4GB / 1MB = 4096 entradas

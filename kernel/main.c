@@ -2,25 +2,23 @@
 #include <syscall.h>
 #include <interrupts_handler.h>
 #include <timer.h>
-#include <types.h>
 #include <pmm.h>
 #include <VMM.h>
 #include <process.h>
 #include <scheduler.h>
 #include <programas.h>
+#include <teste_io.h>
 
 extern page_directory_t *vmm_get_kernel_directory(void);
 
 void kmain(void) {
     setup_core_for_irq();
-    kstdio_init();
     // Inicialização do GIC e interrupção por timer
     kputs("Configurando GIC e Timer...\n");
     init_gic();
     init_timer();
 
-    kputs("Ligando interrupções...\n");
-    enable_cpu_interrupts();
+    kstdio_init();
 
     // TESTES DO GERENCIADOR DE MEMÓRIA //
     //Testando o Gerenciador Físico (PMM)
@@ -53,12 +51,12 @@ void kmain(void) {
     kputs("Resultado da leitura: ");
     kputs((const char *)mem_teste);
     // FIM DOS TESTES DO GERENCIADOR DE MEMORIA //
-    
+
     kputs("Executando em modo ARM bare-metal no QEMU.\n");
+    kputs("Iniciando shell...\n");
+    kputs("Tente digitar help\n\n\n");
 
-    first_process(programainicio);
-
-    abort();
+    first_process(prog_init_idle);
 
     return;
 }

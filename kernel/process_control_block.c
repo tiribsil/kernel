@@ -68,18 +68,15 @@ pll_node* pcb_get_node_pid(pid_t pid)
     for(unsigned i=0; i < SCHEDULER_PCB_ENTRIES_AMOUNT; ++i)
     {
         pll_node *current_node = pcb[i].process_list;
-        if(current_node == NULL) continue;
-
-        do
-        {
+        while (current_node)
+    {
             if(current_node->proc->pid == pid)
             {
                 list_location = i;
                 return current_node;
             }
             current_node = current_node->next;
-            if(current_node == NULL) break;
-        } while(current_node->next);
+        }
     }
     return NULL;
 }
@@ -100,8 +97,19 @@ void pcb_insert(unsigned priority_level, pll_node* inserting_proc)
 */
 void pcb_remove(unsigned priority_level, pll_node* removing_proc)
 {
-    pcb[priority_level].process_list = pll_rem(pcb[priority_level].process_list, removing_proc);
+    // Verifica se o processo realmente está nesta fila
+    pll_node* curr = pcb[priority_level].process_list;
+    int found = 0;
+    while(curr) {
+        if(curr == removing_proc) { found = 1; break; }
+        curr = curr->next;
+    }
+    
+    // Se não está, aborta para não quebrar a contagem
+    if(!found) return; 
 
+    pcb[priority_level].process_list = pll_rem(pcb[priority_level].process_list, removing_proc);
+    
     if(pcb[priority_level].process_count) pcb[priority_level].process_count -= 1;
     if(pcb[priority_level].next_process >= pcb[priority_level].process_count) pcb[priority_level].next_process = 0;
 }
@@ -141,43 +149,45 @@ void pcb_elect(void)
         pll_node *current_process_node = pcb_get_node_pid(current->pid); // atualiza "list_location"
         unsigned quantum = pcb[list_location].quantum;
 
-        if(current->state == RUNNING && running_for < (quantum + SCHEDULER_QUANTUM_MARGIN))
-        {
-            return;
-        } else
-        {
-            if(running_for <= quantum-SCHEDULER_QUANTUM_MARGIN){
-                pcb_climb(current_process_node);
+        if (current->state == RUNNING) {
+            if (running_for < (quantum + SCHEDULER_QUANTUM_MARGIN)) {
+                return; // Mantém rodando
+            } else {
+                // Quantum expirou, reajusta prioridade e cede a CPU
+                if (running_for <= quantum-SCHEDULER_QUANTUM_MARGIN) {
+                    pcb_climb(current_process_node);
+                }
+                else if (running_for >= quantum-SCHEDULER_QUANTUM_MARGIN) {
+                    pcb_fall(current_process_node);
+                }
+                running_for = 0;
+                current->state = READY;
+                current->blocked_by = BT_TIMER;
             }
-            else if(running_for >= quantum-SCHEDULER_QUANTUM_MARGIN){
-                pcb_fall(current_process_node);
-            }
-            running_for = 0;
-            current->state = READY;
-            current->blocked_by = BT_TIMER;
         }
     }
 
-    for(unsigned i=0; i < SCHEDULER_PCB_ENTRIES_AMOUNT; ++i)
+    for(unsigned i = 0; i < SCHEDULER_PCB_ENTRIES_AMOUNT; ++i)
     {
-        pll_node *current_node = pll_idx(pcb[i].process_list, pcb[i].next_process);
-        if(current_node == NULL) continue;
-        short next_process = pcb[i].next_process+1;
+        if (pcb[i].process_count == 0) continue;
 
-        while(current_node->proc->state != READY)
+        for(int tries = 0; tries < pcb[i].process_count; tries++) 
         {
-            next_process++;
-            current_node = current_node->next;
-            if(current_node == NULL) goto end;
+            pll_node *current_node = pll_idx(pcb[i].process_list, pcb[i].next_process);
+
+            if(current_node != NULL && current_node->proc->state == READY) 
+            {
+                process old_current = current;
+                running_for = 0;
+                pcb[i].next_process = (pcb[i].next_process + 1) % pcb[i].process_count;
+
+                current = current_node->proc;
+                current->state = RUNNING;
+                context_switch(&old_current->context, &current->context);
+                return;
+            }
+            pcb[i].next_process = (pcb[i].next_process + 1) % pcb[i].process_count;
         }
-        process old_current = current;
-        running_for = 0;
-        pcb[i].next_process = next_process % pcb[i].process_count;
-        current = current_node->proc;
-        current->state = RUNNING;
-        context_switch(&old_current->context, &current->context);
-        break;
-        end:
     }
     /* não sei oq aconteceria caso nenhum processo fosse elegível, acho que *
      * o kernel só continuaria rodando até um desbloquear                   */ 
