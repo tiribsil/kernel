@@ -3,6 +3,17 @@
 #include <stringutils.h>
 #include <stdio.h>
 
+program program_table[] = {
+    {"programa1", "Imprime texto de teste várias vezes na tela.", programa1},
+    {"programa2", "Imprime texto de teste algumas vezes na tela.", programa2},
+    {"count", "Conta de 1 até o número passado como argumento.", prog_count},
+    {"prime", "Imprime os n primeiros números primos.", prog_prime},
+    {"multitask", "Exemplo de paralelismo.", prog_multitask},
+    {"exit", "Desliga o sistema.", prog_exit},
+    {"help", "Imprime os comandos do sistema.", prog_help},
+    {0, 0, 0}
+};
+
 void prog_init_idle(int argc, char** argv) {
     (void)argc; (void)argv;
 
@@ -32,6 +43,11 @@ void programa2(int argc, char** argv) {
 }
 
 void prog_count(int argc, char** argv) {
+    if (argc < 2) {
+        printf("Esse programa espera um argumento.\n");
+	exit();
+    }
+
     int limite = atoi(argv[1]);
     for(int i = 1; i < limite; i++)
 	printf("%d...\n", i);
@@ -39,6 +55,11 @@ void prog_count(int argc, char** argv) {
 }
 
 void prog_prime(int argc, char** argv) {
+    if (argc < 2) {
+        printf("Esse programa espera um argumento.\n");
+	exit();
+    }
+
     int n_primos = atoi(argv[1]);
     int n = 2;
     for (int i = 0; i < n_primos; n++) {
@@ -53,22 +74,45 @@ void prog_prime(int argc, char** argv) {
     }
 }
 
-void prog_shell(int argc, char** argv) {
+void prog_multitask(int argc, char** argv) {
     (void)argc; (void)argv;
 
-    struct {
-        const char *cmd_name;
-        void (*func)(int, char**);
-    } cmd_table[] = {
-        {"programa1", programa1},
-        {"programa2", programa2},
-        {"count", prog_count},
-        {"prime", prog_prime},
-        //{"sysinfo", prog_sysinfo},
-        //{"matrix", prog_matrix},
-	//{"crash", prog_crash},
-        {0, 0}
-    };
+    printf("[MULTITASK] Processo mestre iniciando...\n");
+    int pids[3];
+
+    for (int i = 0; i < 3; i++) {
+        pids[i] = fork();
+
+        if (pids[i]) continue;
+        printf("   -> Trabalhador %d nasceu!\n", i + 1);
+        for(volatile int delay = 0; delay < 5000000; delay++);
+        printf("   <- Trabalhador %d finalizou!\n", i + 1);
+        exit();
+    }
+
+    printf("[MULTITASK] Mestre aguardando os trabalhadores...\n");
+    for (int i = 0; i < 3; i++)
+        waitpid(pids[i]);
+
+    printf("[MULTITASK] Todos os trabalhadores terminaram. Mestre saindo.\n");
+}
+
+void prog_exit(int argc, char** argv) {
+    (void)argc; (void)argv;
+    abort();
+}
+
+void prog_help(int argc, char** argv) {
+    (void)argc; (void)argv;
+    puts("Olá do UFSKernel!!\n");
+    puts("Aqui está a lista de comandos e programas existentes:\n");
+    for(int i = 0; program_table[i].name; i++) {
+        printf("    %s : %s\n", program_table[i].name, program_table[i].description);
+    }
+}
+
+void prog_shell(int argc, char** argv) {
+    (void)argc; (void)argv;
 
     #define MAX_COMMAND 256
     #define MAX_WORD 64
@@ -94,7 +138,7 @@ void prog_shell(int argc, char** argv) {
 	child_argv[child_argc] = 0;
 	if(!child_argc) continue;
 
-        for(int i = 0; i < MAX_WORD; i++) 
+        for(int i = 0; i < MAX_WORD; i++)
             if(child_argv[child_argc - 1][i] == '\n') { child_argv[child_argc - 1][i] = 0; break; }
 
         if(!strcmp(child_argv[child_argc - 1], "&")){
@@ -103,16 +147,14 @@ void prog_shell(int argc, char** argv) {
             child_argv[child_argc] = 0;
         }
 
-        if(!strcmp(child_argv[0], "exit")) abort();
-
         pid = fork();
         if(pid){
             if(waitForChild) waitpid(pid); 
             else waitForChild = 1;
         } else {
-	    for(int i = 0; cmd_table[i].cmd_name; i++){
-                if(strcmp(*child_argv, cmd_table[i].cmd_name)) continue;
-		exec(cmd_table[i].func, child_argc, child_argv);
+	    for(int i = 0; program_table[i].name; i++){
+                if(strcmp(*child_argv, program_table[i].name)) continue;
+		exec(program_table[i].func, child_argc, child_argv);
 	    }
             puts("Erro ao executar comando!\n");
             exit();

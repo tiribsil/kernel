@@ -92,7 +92,7 @@ void sys_exec(void (*programa)(int, char**), int argc, char** argv) {
     p->tf->cpsr_usr = 1 << 4;
     p->tf->cpsr_usr |= ((unsigned int)programa & 1) << 5;
 
-    return;
+    restore_user_context();
 }
 
 int sys_fork(){
@@ -169,7 +169,6 @@ void first_process(void (*programa)(int, char**)){
     current = newprocess;
 
     sys_exec(programa, 0, 0); //executa o programa inicial
-    restore_user_context();
 }
 
 int sys_waitpid(int pid){
