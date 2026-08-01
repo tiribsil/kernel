@@ -55,7 +55,7 @@ void kmain(void) {
     kputs("Executando em modo ARM bare-metal no QEMU.\n");
     kputs("Iniciando shell...\n");
 
-    first_process(prog_shell);
+    first_process(prog_init_idle);
 
     return;
 }

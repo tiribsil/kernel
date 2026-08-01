@@ -1,6 +1,7 @@
 #include <programas.h>
 #include <syscall.h>
 #include <stringutils.h>
+#include <stdio.h>
 
 void programainicio(int argc, char** argv) {
     (void)argc; (void)argv;
@@ -27,8 +28,21 @@ void programa2(int argc, char** argv) {
     exit();
 }
 
+void prog_init_idle(int argc, char** argv) {
+    (void)argc; (void)argv;
+
+    if (!fork()) exec(prog_shell, 0, 0); // Cria a shell
+
+    // O processo original (PID 0) vira o idle process
+    // Ele só vai rodar quando nenhum outro processo quiser a CPU.
+    while(1) {
+	// TODO: wait for interrupt, por enquanto CPU fica em 100% aqui
+    }
+}
+
 void prog_shell(int argc, char** argv) {
     (void)argc; (void)argv;
+
     struct {
         const char *cmd_name;
         void (*func)(int, char**);
@@ -43,8 +57,6 @@ void prog_shell(int argc, char** argv) {
         {0, 0}
     };
 
-    if(!fork()) while(1); // Idle process para a cpu ter algo pra fazer
-
     #define MAX_COMMAND 256
     #define MAX_WORD 64
 
@@ -53,8 +65,8 @@ void prog_shell(int argc, char** argv) {
     int pid, waitForChild = 1;
 
     while(1){
-        write("> ", 3);
-        read(command, MAX_COMMAND);
+        puts("> ");
+        gets(command);
 
         int child_argc = 0;
 	char* p = command;
@@ -89,7 +101,7 @@ void prog_shell(int argc, char** argv) {
                 if(strcmp(*child_argv, cmd_table[i].cmd_name)) continue;
 		exec(cmd_table[i].func, child_argc, child_argv);
 	    }
-            write("Erro ao executar comando!\n", 50);
+            puts("Erro ao executar comando!\n");
             exit();
         }
     }

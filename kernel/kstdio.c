@@ -256,11 +256,11 @@ int sys_write(char* buffer, unsigned max_len) {
 }
 
 int sys_read(char* buffer, unsigned max_len) {
-    if (!buffer || max_len <= 1) return 0;
+    if (!buffer || !max_len) return 0;
 
-    kgets(buffer, max_len);
     unsigned length = 0;
-    while (length < max_len && buffer[length] != '\0') {
+    while (length < max_len) {
+        buffer[length] = uart_getc();
         length++;
     }
     return length;
