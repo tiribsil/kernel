@@ -3,13 +3,16 @@
 #include <stringutils.h>
 #include <stdio.h>
 
-void programainicio(int argc, char** argv) {
+void prog_init_idle(int argc, char** argv) {
     (void)argc; (void)argv;
-    write("Processo rodando programa inicio\n", 50);
 
-    if(!fork()) exec(programa1, 0, 0);
-    if(!fork()) exec(programa2, 0, 0);
-    exit();
+    if (!fork()) exec(prog_shell, 0, 0); // Cria a shell
+
+    // O processo original (PID 0) vira o idle process
+    // Ele só vai rodar quando nenhum outro processo quiser a CPU.
+    while(1) {
+	// TODO: wait for interrupt, por enquanto CPU fica em 100% aqui
+    }
 }
 
 void programa1(int argc, char** argv) {
@@ -28,16 +31,11 @@ void programa2(int argc, char** argv) {
     exit();
 }
 
-void prog_init_idle(int argc, char** argv) {
-    (void)argc; (void)argv;
-
-    if (!fork()) exec(prog_shell, 0, 0); // Cria a shell
-
-    // O processo original (PID 0) vira o idle process
-    // Ele só vai rodar quando nenhum outro processo quiser a CPU.
-    while(1) {
-	// TODO: wait for interrupt, por enquanto CPU fica em 100% aqui
-    }
+void prog_count(int argc, char** argv) {
+    int limite = atoi(argv[1]);
+    for(int i = 1; i < limite; i++)
+	printf("%d...\n", i);
+    printf("%d!!!\n", limite);
 }
 
 void prog_shell(int argc, char** argv) {
@@ -49,7 +47,7 @@ void prog_shell(int argc, char** argv) {
     } cmd_table[] = {
         {"programa1", programa1},
         {"programa2", programa2},
-        //{"count", prog_count},
+        {"count", prog_count},
         //{"prime", prog_prime},
         //{"sysinfo", prog_sysinfo},
         //{"matrix", prog_matrix},
