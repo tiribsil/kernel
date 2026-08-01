@@ -54,6 +54,7 @@ void kmain(void) {
 
     kputs("Executando em modo ARM bare-metal no QEMU.\n");
     kputs("Iniciando shell...\n");
+    kputs("Tente digitar help\n\n\n");
 
     first_process(prog_init_idle);
 
