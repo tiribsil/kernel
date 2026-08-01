@@ -120,26 +120,12 @@ void printf(const char *format, ...) {
         break;
       }
       case 'd': {
-        long long n;
-        if (length_mod >= 2) {
-          n = va_arg(args, long long);
-        } else if (length_mod == 1) {
-          n = va_arg(args, long);
-        } else {
-          n = va_arg(args, int); // Default 32-bit
-        }
+	int n = va_arg(args, int);
         print_int_base(n, 10);
         break;
       }
       case 'u': {
-        unsigned long long u;
-        if (length_mod >= 2) {
-          u = va_arg(args, unsigned long long);
-        } else if (length_mod == 1) {
-          u = va_arg(args, unsigned long);
-        } else {
-          u = va_arg(args, unsigned int);
-        }
+	unsigned u = va_arg(args, unsigned);
         print_uint_base(u, 10);
         break;
       }
