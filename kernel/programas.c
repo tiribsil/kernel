@@ -76,25 +76,52 @@ void prog_prime(int argc, char** argv) {
 
 void prog_multitask(int argc, char** argv) {
     (void)argc; (void)argv;
+    
+    puts("Processo pai iniciando...\n");
+    volatile int pid1, pid2, pid3;
 
-    printf("[MULTITASK] Processo mestre iniciando...\n");
-    int pids[3];
-
-    for (int i = 0; i < 3; i++) {
-        pids[i] = fork();
-
-        if (pids[i]) continue;
-        printf("   -> Trabalhador %d nasceu!\n", i + 1);
+    // Trabalhador 1
+    pid1 = fork();
+    printf("Filho 1: PID %d\n", pid1);
+    if (pid1 == 0) {
+        puts("   -> Filho 1 nasceu!\n");
         for(volatile int delay = 0; delay < 5000000; delay++);
-        printf("   <- Trabalhador %d finalizou!\n", i + 1);
+        puts("   <- Filho 1 finalizou!\n");
         exit();
     }
 
-    printf("[MULTITASK] Mestre aguardando os trabalhadores...\n");
-    for (int i = 0; i < 3; i++)
-        waitpid(pids[i]);
+    // Trabalhador 2
+    pid2 = fork();
+    printf("Filho 3: PID %d\n", pid2);
+    if (pid2 == 0) {
+        puts("   -> Filho 2 nasceu!\n");
+        for(volatile int delay = 0; delay < 5000000; delay++);
+        puts("   <- Filho 2 finalizou!\n");
+        exit();
+    }
 
-    printf("[MULTITASK] Todos os trabalhadores terminaram. Mestre saindo.\n");
+    // Trabalhador 3
+    pid3 = fork();
+    printf("Filho 3: PID %d\n", pid3);
+    if (pid3 == 0) {
+        puts("   -> Filho 3 nasceu!\n");
+        for(volatile int delay = 0; delay < 5000000; delay++);
+        puts("   <- Filho 3 finalizou!\n");
+        exit();
+    }
+
+    // Código do Pai
+    puts("Pai esperando os filhos...\n");
+    
+    printf("Esperando 1: PID %d\n", pid1);
+    waitpid(pid1);
+    printf("Esperando 2: PID %d\n", pid2);
+    waitpid(pid2);
+    printf("Esperando 3: PID %d\n", pid3);
+    waitpid(pid3);
+    
+    puts("Todos os filhos terminaram. Pai saindo.\n");
+    exit();
 }
 
 void prog_exit(int argc, char** argv) {
@@ -132,8 +159,10 @@ void prog_shell(int argc, char** argv) {
             child_argv[child_argc] = p;
 	    child_argc++;
 	    while(*p && *p != ' ' && *p != '\n') p++;
-	    if(*p == ' ') *p = 0;
+	    if(*p != ' ') continue;
+	    *p = 0;
 	    p++;
+	    while(*p == ' ') p++;
 	}
 	child_argv[child_argc] = 0;
 	if(!child_argc) continue;

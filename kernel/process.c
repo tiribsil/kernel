@@ -122,16 +122,15 @@ int sys_fork(){
     newprocess->tf->pc_usr = newprocess->parent->tf->pc_usr;
     newprocess->tf->lr_usr = newprocess->parent->tf->lr_usr;
 
-    unsigned int sp_offset = newprocess->parent->tf->sp_usr - (unsigned int)newprocess->parent->usr_stack;
-    newprocess->tf->sp_usr = (unsigned int)newprocess->usr_stack + sp_offset;
+    unsigned int stack_diff = (unsigned int)newprocess->usr_stack - (unsigned int)newprocess->parent->usr_stack;
+    newprocess->tf->sp_usr = newprocess->parent->tf->sp_usr + stack_diff;
 
-    // prepara os retornos diferentes
+    // isso é para mexer no r7 que foi colocado na pilha no assembly
+    // só necessário pq processos ainda não ter memória virtual separada
+    unsigned int *saved_r7 = (unsigned int *)newprocess->tf->sp_usr;
+    *saved_r7 = *saved_r7 + stack_diff;
+
     newprocess->tf->r0 = 0;
-    // configura os frame pointers
-    unsigned int r11_offset = newprocess->parent->tf->r11 - (unsigned int)newprocess->parent->usr_stack;
-    newprocess->tf->r11 = (unsigned int)newprocess->usr_stack + r11_offset;
-    unsigned int r7_offset = newprocess->parent->tf->r7 - (unsigned int)newprocess->parent->usr_stack;
-    newprocess->tf->r7 = (unsigned int)newprocess->usr_stack + r7_offset;
 
     newprocess->context.sp = (unsigned int)newprocess->tf;
     newprocess->context.lr = (unsigned int)fork_return_asm; // prepara o retorno da troca de contexto para fork return
