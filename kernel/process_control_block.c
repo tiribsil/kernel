@@ -69,7 +69,7 @@ pll_node* pcb_get_node_pid(pid_t pid)
     {
         pll_node *current_node = pcb[i].process_list;
         while (current_node)
-	{
+    {
             if(current_node->proc->pid == pid)
             {
                 list_location = i;

@@ -112,7 +112,7 @@ int sys_fork(){
     // copia toda as pilhas do pai para o filho
     for(int i = 0; i < PAGE_SIZE; i++){
         newprocess->kstack[i] = newprocess->parent->kstack[i];
-	newprocess->usr_stack[i] = newprocess->parent->usr_stack[i];
+        newprocess->usr_stack[i] = newprocess->parent->usr_stack[i];
     }
 
     newprocess->tf = (struct trapframe*)((char *)newprocess->kstack + ((char *)newprocess->parent->tf - (char *)newprocess->parent->kstack)); // calcula o topo da pilha do filho com base na do pai
@@ -179,7 +179,7 @@ int sys_waitpid(int pid){
 
     while (child->state != ZOMBIE) {
         current->state = BLOCKED;
-	pcb_elect();
+        pcb_elect();
     }
 
     current->waiting_for_pid = 0;

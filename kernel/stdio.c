@@ -29,7 +29,7 @@ char* gets(char *buf) {
     } else if (c == '\b' || c == 0x7F) {
       if (index > 0) {
         index--;
-	write("\b \b", 3);
+        write("\b \b", 3);
       }
     } else if (c >= 32 && c <= 126) {
       buf[index++] = c;
@@ -120,12 +120,12 @@ void printf(const char *format, ...) {
         break;
       }
       case 'd': {
-	int n = va_arg(args, int);
+        int n = va_arg(args, int);
         print_int_base(n, 10);
         break;
       }
       case 'u': {
-	unsigned u = va_arg(args, unsigned);
+        unsigned u = va_arg(args, unsigned);
         print_uint_base(u, 10);
         break;
       }
