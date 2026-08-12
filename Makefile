@@ -13,7 +13,7 @@ TARGET = kernel.elf
 # -Wall: Habilita todos os warnings. -Wextra: Habilita mais warnings.
 # -g: Inclui símbolos de debug para o GDB.
 # -Iinclude: Adiciona o diretório 'include' aos caminhos de busca por headers.
-CFLAGS = -nostdlib -ffreestanding -Wall -Wextra -g -Iinclude
+CFLAGS = -nostdlib -ffreestanding -Wall -Wextra -g -Iinclude -O0
 
 ARCH_FLAGS = -mcpu=cortex-a15 -mthumb
 
@@ -29,14 +29,11 @@ OBJ_FILES += $(patsubst kernel/%.c, $(BUILD_DIR)/%.o, $(C_SOURCES))
 
 LINKER_SCRIPT = arch/arm/linker.ld
 
-# libgcc eh necessario quando usamos operacoes com float/double.
-LIBGCC = $(shell $(CC) -print-libgcc-file-name)
-
 all: $(TARGET)
 
 $(TARGET): $(OBJ_FILES)
 	@echo "LD	$@"
-	@$(LD) -T $(LINKER_SCRIPT) -o $@ $(OBJ_FILES) $(LIBGCC)
+	@$(LD) -T $(LINKER_SCRIPT) -o $@ $(OBJ_FILES)
 
 $(BUILD_DIR)/%.o: kernel/%.c
 	@mkdir -p $(@D)

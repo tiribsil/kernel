@@ -1,9 +1,20 @@
+#ifndef SYSCALL_H
+#define SYSCALL_H
+
 /*
 Serve apenas como definição das funções que fazem chamadas de sistema,
 permite o acesso delas a partir de código C.
-Ao criar uma nova, definir aqui corretamente seus parâmetros e retorno
 */
 
+//int printf(const char *s);
+int abort(void);
 
-int printf(const char *s);
-int abort();
+int fork(void);
+void exec(void (*programa)(int, char**), int argc, char** argv);
+void exit(void);
+int waitpid(int pid);
+
+int read(char* buffer, unsigned max_len);
+int write(char* buffer, unsigned max_len);
+
+#endif // SYSCALL_H

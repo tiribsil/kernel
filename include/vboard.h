@@ -1,8 +1,6 @@
 #ifndef VBOARD_H
 #define VBOARD_H
 
-#include "types.h"
-
 /* Mapeamento de memoria */
 
 #define RAM_BASE 0x40000000

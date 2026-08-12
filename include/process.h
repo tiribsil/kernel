@@ -13,16 +13,16 @@ typedef struct
 
 typedef struct process* process;
 
-
 enum State{
-    RUNNING, 
-    READY, 
+    RUNNING,
+    READY,
     BLOCKED,
     ZOMBIE
 };
 
 enum Block_Reason{
-    BT_TIMER
+    BT_TIMER,
+    BT_UART
 };
 
 enum process_blocks {WAIT_SLEEP, WAIT_FILE};
@@ -30,36 +30,16 @@ enum process_blocks {WAIT_SLEEP, WAIT_FILE};
 
 // ***constantes e variaveis globais
 
-#define MAX_PROCESS_COUNT 4
-
-#define SIZE_16KB (16 * 1024)
-#define PROCESS_SIZE (256 * 1024)
-
-#define KSTACK_SIZE 16384
+#define MAX_PROCESS_COUNT 64
 
 extern process current;
-extern struct arquivo arqinicio;
-extern struct arquivo arq1;
-extern struct arquivo arq2;
-
 
 // **funcoes
 
-void programainicio();
+void fork_return_asm(void);
+void restore_user_context(void);
 
-void programa1();
-
-void programa2();
-
-void fork_return(void);
-
-extern int fork();
-
-extern void exec(struct arquivo* arquivo);
-
-extern void exit();
-
-void first_process(struct arquivo arquivo);
+void first_process(void (*programa)(int, char**));
 
 pid_t create_pid();
 
@@ -72,7 +52,7 @@ struct context{
 
     //apenas os registradores call-preserved
     unsigned int r4;
-    unsigned  r5;
+    unsigned int r5;
     unsigned int r6;
     unsigned int r7;
     unsigned int r8;
@@ -108,19 +88,20 @@ struct trapframe{
 
 
 struct process{
-    char* mem; // começo da memória do processo
-    unsigned msize; // tamanho da memória do processo 
-
+    char* usr_stack;
     char* kstack; // ponteiro para o inicio da pilha no kernel para o processo
     struct trapframe *tf; // trapframe do processo (ponteiro para o topo da pilha no kernel)
 
     enum State state; // estado do processo
     enum Block_Reason blocked_by;
+
+    pid_t waiting_for_pid;
+
     // Informações para o Kernel
     pid_t pid;
     process parent;
     pid_list children_ids;
-  
+
     struct context context; // contexto do kernel
 
     unsigned priority;
@@ -152,15 +133,5 @@ struct process_block_list
   int files[32];
   int waiting_for_file_count;
 };
-
-// simulacao de arquivo com funcoes
-struct arquivo{
-  void (*start)(void);
-  int size;
-};
-
-
-
-
 
 #endif

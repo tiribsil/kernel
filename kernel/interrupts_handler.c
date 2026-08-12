@@ -1,83 +1,62 @@
 #include <interrupts_handler.h>
 #include <vboard.h>
+#include <bitutils.h>
 
 static isr_t interrupt_handlers[MAX_INTERRUPTS] = {0};
 
 uint32_t current_irq;
 
 int register_interrupt_handler(uint32_t irq, isr_t handler) {
-
-  if (irq < MAX_INTERRUPTS) {
-    if (interrupt_handlers[irq] ==
-        0) { // se ja tiver handler registrado, rejeita e retorna erro (-2)
-      interrupt_handlers[irq] = handler;
-      return 0;
-    } else
-      return -2;
-  }
-  return -1; // erro
+  if (irq >= MAX_INTERRUPTS) return -1; // ID inválido
+  if (interrupt_handlers[irq]) return -2; // Já existe
+  
+  interrupt_handlers[irq] = handler; // Registra tratador
+  return 0;
 }
 
 void gic_enable_interrupt(uint32_t irq) {
-  if (irq >= MAX_INTERRUPTS)
-    return;
+  if (irq >= MAX_INTERRUPTS) return; // ID inválido
 
-  // cada registrador tem 32 bits
-  uint32_t reg_index = irq / 32;  // qual registrador
-  uint32_t bit_offset = irq % 32; // qual bit do registrador
-
-  GICD_ISENABLER[reg_index] |= (1 << bit_offset);
+  enable_bit(GICD_ISENABLER, irq); // Ativa o bit, liga a interrupção
 }
 
 void gic_disable_interrupt(uint32_t irq) {
-  if (irq >= MAX_INTERRUPTS)
-    return;
+  if (irq >= MAX_INTERRUPTS) return; // ID inválido
 
-  uint32_t reg_index = irq / 32;
-  uint32_t bit_offset = irq % 32;
-
-  // No ICENABLER escrever 1 desliga a interrupção
-  GICD_ICENABLER[reg_index] = (1 << bit_offset);
+  enable_bit(GICD_ICENABLER, irq); // Ativa o bit, desliga a interrupção
 }
 
 void init_gic(void) {
-  GICD_CTLR = 1;
-  GICC_CTLR = 1;
-  GICC_PMR = 0xFF;
+  GICD_CTLR = 1; // Ativa distribuidor global de interrupções
+  GICC_CTLR = 1; // Ativa interface de interrupções da CPU
+  GICC_PMR = BIT_MASK(8); // Tratar interrupções de qualquer prioridade
 }
 
-// sinal do hardware: 1 para Edge-triggered, 0 para Level-sensitive
 void gic_config_interrupt(uint32_t irq, int edge_triggered) {
-  // cada IRQ ocupa 2 bits, pacha o indice dividindo or 16
-  uint32_t reg_index = irq / 16;
+  // Cada IRQ ocupa 2 bits, acha o indice dividindo por 16
+  uint32_t reg_index = irq >> 4;
+  // Primeiros 4 bits são quantos pares tem que pular
+  uint32_t shift = (irq & BIT_MASK(4)) << 1;
 
-  // shift do par de bits
-  uint32_t shift = (irq % 16) * 2;
-
-  // Primeiro, limpamos o par de bits atual usando uma máscara (11 em binário
-  // invertido)
+  // Primeiro, limpamos o par de bits da IRQ
   GICD_ICFGR[reg_index] &= ~(0b11 << shift);
 
-  // Se for sensível à borda, aplicamos o valor 10 (em binário)
-  if (edge_triggered) {
-    GICD_ICFGR[reg_index] |= (0b10 << shift);
-  }
+  // Se for sensível à borda, aplicamos o valor 10
+  if (edge_triggered) GICD_ICFGR[reg_index] |= (0b10 << shift);
 }
 
 void enable_cpu_interrupts(void) { __asm__ volatile("cpsie i"); }
 
 void irq_dispatcher_c(void) {
-  uint32_t irq_id = GICC_IAR & 0x3FF;
+  uint32_t irq_id = GICC_IAR & BIT_MASK(10); // Pega ID da interrupção do registrador
   current_irq = irq_id;
 
-  if (irq_id < MAX_INTERRUPTS && interrupt_handlers[irq_id] != 0) {
-    interrupt_handlers[irq_id]();
-  }
+  GICC_EOIR = irq_id; // Avisa que está sendo tratada
 
-  GICC_EOIR = irq_id;
+  if (irq_id < MAX_INTERRUPTS && interrupt_handlers[irq_id])
+    interrupt_handlers[irq_id](); // Trata, se possível
 }
 
-
 void irq_end_current(void){
-    GICC_EOIR = current_irq;
+    GICC_EOIR = current_irq; // Avisa que ultima interrupção foi tratada
 }
