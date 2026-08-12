@@ -39,12 +39,6 @@ typedef int32_t                ssize_t;
 /*   Tipos Extras Muito Úteis para Desenvolvimento de OS                    */
 /* ========================================================================== */
 
-// Tipo Booleano nativo
-typedef enum {
-    false = 0,
-    true = 1
-} bool;
-
 // Tipo nulo padrão
 #ifndef NULL
 #define NULL ((void*)0)
