@@ -98,9 +98,7 @@ void printf(const char *format, ...) {
         }
       }
 
-      int length_mod = 0;
       if (*format == 'l') {
-        length_mod++;
         format++;
       }
 
