@@ -16,6 +16,8 @@ SECTIONS {
         *(.rodata)              /* as seções de constante. */
     }
 
+    . = ALIGN(4096);
+
     /* As seções .data e .bss são Read / Write (RW). */
     /* Elas armazenam as variáveis globais. */
     .data : {
