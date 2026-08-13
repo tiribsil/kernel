@@ -11,6 +11,7 @@ program program_table[] = {
     {"multitask", "Exemplo de paralelismo.", prog_multitask},
     {"exit", "Desliga o sistema.", prog_exit},
     {"help", "Imprime os comandos do sistema.", prog_help},
+    {"evento", "Imprime o visual de evento do UFSKernel.", prog_evento},
     {0, 0, 0}
 };
 
@@ -133,6 +134,34 @@ void prog_help(int argc, char** argv) {
     }
 }
 
+void prog_evento(int argc, char** argv) {
+    puts(" _____________________________________________________________________\n");
+    puts("|  ┆　┆　┆　┆　┆                                                      |\n");
+    puts("|  ┆　┆  ࣪ ˖☆ ࣪⭑┆ ݁˖ .☆ . ݁           __     _                        _   |\n");
+    puts("| ☆⊹ ࣪ ┆ ˖ ࣪　⊹ ࣪ ★ ⋆.˚  ⊹ ࣪   _   _ / _|___| | _____ _ __ _ __   ___| |  |\n");
+    puts("|    ࣪ ˖⋆˚★ ₊ ⊹　  ࣪˖ ࣪ ₊  ࣪  | | | | |_/ __| |/ / _ \\ '__| '_ \\ / _ \\ |  |\n");
+    puts("| . ݁　⊹ ࣪ ˖　　　 ࣪ ˖       | |_| |  _\\__ \\   <  __/ |  | | | |  __/ |  |\n");
+    puts("|　　.                     \\__,_|_| |___/_|\\_\\___|_|  |_| |_|\\___|_|  |\n");
+    puts("|　　.                                                                |\n");
+
+    if(argc == 1){
+        puts("\\_____________________________________________________________________/\n");
+        return;
+    }
+
+    const char* whitespace = "|                                                                     |\n";
+    puts("|  _________________________________________________________________  |\n");
+    puts(whitespace);
+    printf("|  ~ > evento: %s%s", argv[1], whitespace + strlen(argv[1]) + 15);
+
+    if(argc >= 3){
+        puts("|                                                                     |\n");
+        printf("|  ~ > quando e onde: %s%s", argv[2], whitespace + strlen(argv[2]) + 22);
+    }
+
+    puts("\\_____________________________________________________________________/\n");
+}
+
 void prog_shell(int argc, char** argv) {
     (void)argc; (void)argv;
 
@@ -149,12 +178,15 @@ void prog_shell(int argc, char** argv) {
 
         int child_argc = 0;
         char* p = command;
+        char aspas = 0;
         while(*p && *p != '\n'){
             while(*p == ' ') p++;
+	    if(!aspas && *p == '"') {aspas = 1; p++;}
             child_argv[child_argc] = p;
             child_argc++;
-            while(*p && *p != ' ' && *p != '\n') p++;
-            if(*p != ' ') continue;
+            while(*p && (*p != ' ' || aspas) && (*p != '"' || !aspas) && *p != '\n') p++;
+            if(*p != ' ' && *p != '"') continue;
+	    if(*p == '"') aspas = 0;
             *p = 0;
             p++;
             while(*p == ' ') p++;

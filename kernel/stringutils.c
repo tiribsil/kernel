@@ -9,6 +9,12 @@ int strcmp(const char *s1, const char *s2) {
   return *(const unsigned char *)s1 - *(const unsigned char *)s2;
 }
 
+int strlen(const char* s){
+    int len = 0;
+    while(s[len]) len++;
+    return len;
+}
+
 int atoi(char* str) {
   int sign = 1;
   char* p = str;

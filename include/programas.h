@@ -18,6 +18,7 @@ void prog_prime(int argc, char** argv);
 void prog_multitask(int argc, char** argv);
 void prog_exit(int argc, char** argv);
 void prog_help(int argc, char** argv);
+void prog_evento(int argc, char** argv);
 void prog_shell(int argc, char** argv);
 
 #endif
