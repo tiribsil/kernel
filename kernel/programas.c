@@ -90,7 +90,7 @@ void prog_multitask(int argc, char** argv) {
     }
 
     pid2 = fork();
-    printf("Filho 3: PID %d\n", pid2);
+    printf("Filho 2: PID %d\n", pid2);
     if (!pid2) {
         puts("   -> Filho 2 nasceu!\n");
         for(volatile int delay = 0; delay < 5000000; delay++);
